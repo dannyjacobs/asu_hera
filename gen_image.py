@@ -1,3 +1,10 @@
+'''
+
+File to generate '.image' files from '.ms' files based off of David's method
+
+'''
+
+
 import os
 from casa import *
 
