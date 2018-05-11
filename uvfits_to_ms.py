@@ -2,19 +2,19 @@ from casa import importuvfits
 import sys
 import os
 
-def find_uvfits_files(polarization='xx',path=None):
+def find_uvfits_files(path=None,polarization='xx'):
     """
 
     Finds all of the uvfits files in a given directory
 
     Parameters
     ----------
-    polarization : str
-        Polarization of the uvfits files to search for.
-        Default is xx polarization
     path : str
         Folder path where the function looks for uvfits files.
         Default is the current working directory.
+    polarization : str
+        Polarization of the uvfits files to search for.
+        Default is xx polarization
 
     Returns
     -------
@@ -50,9 +50,10 @@ def convert_uvfits(folder,path=None):
         Default is the current working directory.
 
     """
-    if path != None:
+    if path is not None:
         if os.path.isdir(path):
-            vis_file = os.path.join(path,folder) + '.ms'
+            file_name = os.path.basename(folder)
+            vis_file = os.path.join(path,file_name) + '.ms'
         else:
             raise IOError("%s not found." % path)
 
