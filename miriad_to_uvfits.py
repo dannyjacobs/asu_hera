@@ -67,7 +67,7 @@ def miriad_to_uvfits(folder,path=None):
 
 if __name__ == '__main__':
 	try:
-		folder = sys.argv[1:]
+		folders = sys.argv[1:]
 		if type(folders) == str:
 			miriad_to_uvfits(folder)
 		else:
