@@ -22,3 +22,13 @@ def save_image(imname,out,ext='png'):
     img.load(imname)
     img.output(device=out,format=ext)
     img.close()
+
+if __name__ == "__main__":
+    folders = sys.argv[3:]
+    if folders is str:
+        save_image(folders,folders+'.png')
+    else:
+        folders.sort()
+        print (folders)
+        for folder in folders:
+            save_image(folder,folder+'.png')
