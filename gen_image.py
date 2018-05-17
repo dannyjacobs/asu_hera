@@ -75,10 +75,11 @@ def file_3_names(file_2_clean):
     imgnameFinal=file_3_clean + "Final.combined" + ".img"
     return (file_3_clean,imgnameFinal)
 
-def clean_final(file_3_clean,imgnameFinal):
-    tb.open(os.path.join(file_3_clean,'SOURCE'))
+def clean_final(file_to_clean,imgnameFinal):
+    tb.open(os.path.join(file_to_clean,'SOURCE'))
     ra = convert_angle(tb.getcol('DIRECTION')[0][0])
-    clean(vis=file_3_clean, imagename=imgnameFinal, niter=5000, weighting='briggs',robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,spw='0:60~745', mask=('circle[['+ ra +', -29d00m00.0s], 32000arcsec]'))
+    tb.close()
+    clean(vis=file_to_clean, imagename=imgnameFinal, niter=5000, weighting='briggs',robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,spw='0:60~745', mask=('circle[['+ ra +', -29d00m00.0s], 32000arcsec]'))
 
 def convert_angle(angle):
     if (angle < 0):
@@ -99,7 +100,17 @@ def convert_angle(angle):
     count = 0
 
     time = time*60
+
+    while (time>=1):
+        time = time-1
+        count += 1
+
+    mins = count
+
+    time = time*60
+
     secs = time
+
     ra = str(hours) + 'h' + str(mins) + 'm' + str(secs) + 's'
     return(ra)
 
