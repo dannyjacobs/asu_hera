@@ -7,8 +7,7 @@ Script to generate image from ms data sets using David's procedure
 
 import os
 from casa import *
-from astropy.time import Time
-
+import numpy as np
 
 def calname(m,c):
     return os.path.basename(m)+c+".cal"
@@ -24,8 +23,6 @@ def calinitial(infile):
 
     #create calibration files
     kc=calname(infile, "K")
-    gc=calname(infile, "G")
-    #check for delays and errors
     gaincal(infile, caltable=kc, gaintype='K', solint='inf', refant='11', minsnr=1, spw='0:100~130, 0:400~600')
     #check for frequency errors
     gaincal(infile, caltable=gc, gaintype='G', solint='inf', refant='11', minsnr=2, calmode='ap', gaintable=kc)
@@ -78,14 +75,34 @@ def file_3_names(file_2_clean):
     imgnameFinal=file_3_clean + "Final.combined" + ".img"
     return (file_3_clean,imgnameFinal)
 
-def deg_to_ra():
-    pass
-
 def clean_final(file_3_clean,imgnameFinal):
-    tb.open(file_3_clean+'/FIELD')
-    t_mjd = Time(np.median(tb.getcol('TIME'))/(60*60*24), format='mjd', scale='utc', location=(21.42822, -30.72146))
-    sidereal = t_mjd.sidereal_time('apparent')
-    clean(vis=file_3_clean, imagename=imgnameFinal, niter=5000, weighting='briggs',robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,spw='0:60~745', mask=('circle[['+ sidereal +', -29d00m00.0s], 32000arcsec]'))
+    tb.open(os.path.join(file_3_clean,'SOURCE'))
+    ra = convert_angle(tb.getcol('DIRECTION')[0][0])
+    clean(vis=file_3_clean, imagename=imgnameFinal, niter=5000, weighting='briggs',robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,spw='0:60~745', mask=('circle[['+ ra +', -29d00m00.0s], 32000arcsec]'))
+
+def convert_angle(angle):
+    if (angle < 0):
+        ang = (2*np.pi)+angle
+    else:
+        ang = angle
+
+    time = (ang/(2*np.pi))*24
+
+    count = 0
+
+    while (time>=1):
+        time = time-1
+        count+=1
+
+    hours = count
+
+    count = 0
+
+    time = time*60
+    secs = time
+    ra = str(hours) + 'h' + str(mins) + 'm' + str(secs) + 's'
+    return(ra)
+
 
 def make_initial_image(infile):
     img_dir = 'imgs'
@@ -114,10 +131,7 @@ def make_initial_image(infile):
     file_2_clean,imgname2 = file_2_names(file_to_clean)
 
     print ('\nCleaning Data...\n')
-    try:
-        do_clean(file_2_clean,imgname2)
-    except:
-        pass
+    do_clean(file_2_clean,imgname2)
 
     print ('\nRunning Band Pass...\n')
     bc1 = do_band_pass(file_2_clean)
@@ -125,14 +139,12 @@ def make_initial_image(infile):
     imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
 
     print ('\nFinal Clean...\n')
-    try:
-        clean_final(file_3_clean, imgnameFinal)
-    except:
-        pass
+    clean_final(file_3_clean, imgnameFinal)
 
     return (kc,gc,bc,bc1)
 
 def make_image(infile,kc,gc,bc,bc1):
+    print ('Running File: ' + infile)
     img_dir = 'imgs'
 
     print ('\nFlagging Data...\n')
@@ -145,50 +157,12 @@ def make_image(infile,kc,gc,bc,bc1):
 
     print ('\nFinal Clean...\n')
     clean_final(file_to_clean, imgnameFinal)
-
-    return (kc,gc,bc,bc1)
-
-def find_ms_files(path=None):
-    """
-
-    Finds all of the uvfits files in a given directory
-
-    Parameters
-    ----------
-    path : str
-        Folder path where the function looks for uvfits files.
-        Default is the current working directory.
-    polarization : str
-        Polarization of the uvfits files to search for.
-        Default is xx polarization
-
-    Returns
-    -------
-    array
-        An array of uvfits file names
-
-    """
-
-    if path is None:
-        path = os.getcwd()
-
-    folders = []
-
-    for folder in os.listdir(path):
-        if folder.endswith('.ms'):
-            folders.append(os.path.join(path,folder))
-
-    folders.sort()
-    return (folders)
-
-
-
+    exportfits(imagename=(imgnameFinal+'.image'),fitsimage=(imgnameFinal+'.fits'))
+    
 
 if __name__ == "__main__":
     folders = sys.argv[3:]
     folders.sort()
-    #gc,kc,bc,bc1 = make_initial_image(folders[0])
-    print (folders)
     gc = 'zen.2458042.12552.xx.HH.uvR.uvfits.msG.cal'
     kc = 'zen.2458042.12552.xx.HH.uvR.uvfits.msK.cal'
     bc = 'zen.2458042.12552.xx.HH.uvR.uvfits.mssplit.msB.cal'

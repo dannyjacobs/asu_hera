@@ -65,10 +65,7 @@ def convert_uvfits(folder,path=None):
 if __name__ == '__main__':
     try:
         folders = sys.argv[3:]
-        if type(folders) == str:
-            convert_uvfits(folders)
-        else:
-            for folder in folders:
-                convert_uvfits(folder)
+        for folder in folders:
+            convert_uvfits(folder)
     except IndexError:
         print ('No file specified for conversion from uvfits to ms')
