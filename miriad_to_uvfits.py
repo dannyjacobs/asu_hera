@@ -7,7 +7,7 @@ import sys
 
 def find_uvR_files(polarization='xx',path=None):
 	"""
-	
+
 	Finds all of the uvR files in a given directory
 
 	Parameters
@@ -19,10 +19,10 @@ def find_uvR_files(polarization='xx',path=None):
 	Returns
 	-------
 	array
-		An array of uvfits file names	
+		An array of uvfits file names
 
 	"""
-	
+
 	if path is  None:
 		path = os.getcwd()
 
@@ -54,7 +54,7 @@ def miriad_to_uvfits(folder,path=None):
 	if path is not None:
 		if os.path.isdir(path):
 			vis_file = os.path.join(path,folder) + '.uvfits'
-		else: 
+		else:
 			raise IOError("%s not found." % path)
 
 	else:
@@ -68,10 +68,7 @@ def miriad_to_uvfits(folder,path=None):
 if __name__ == '__main__':
 	try:
 		folders = sys.argv[1:]
-		if type(folders) == str:
+		for folder in folders:
 			miriad_to_uvfits(folder)
-		else:
-			for folder in folders:
-				miriad_to_uvfits(folder)
 	except IndexError:
 		print('No file specified for conversion from miriad to uvfits')
