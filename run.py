@@ -18,7 +18,7 @@ bc1                 =   'zen.2458042.12552.xx.HH.uvR.uvfits.mssplit.msc2.msB.cal
 gaintable           =   [kc, gc, bc, bc1]
 
 # Clean Parameters
-niter               =   5000
+niter               =   6000
 weighting           =   'briggs'
 robust              =   -0.5
 imsize              =   [512,512]
@@ -37,9 +37,9 @@ if __name__ == '__main__':
 
         # Check to see that the calibration files exist. If they do not exist,
         # generate them.
-        check_f = [os.path.isfile(l) for l in [gc,kc,bc,bc1]]
+        check_f = [os.path.isdir(l) for l in gaintable]
 
-        if all(check_f):
+        if not all(check_f):
             gaintable = make_initial_image(folders[0])
             del folders[0]
 
