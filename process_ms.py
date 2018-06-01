@@ -231,9 +231,9 @@ def make_initial_image(infile,img_dir='imgs'):
 
     return (kc,gc,bc,bc1)
 
-def make_image(infile, gaintable, niter = 5000, weighting = 'briggs', robust = -0.5,
-               imsize = [512,512], cell = ['250arcsec'], mode = 'mfs', nterms = 1
-               spw = '0:100~800'):
+def make_image(infile, img_dir,gaintable, mask, niter=6000, weighting='briggs',
+          robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,
+          spw='0:100~800',phasecenter=''):
     '''
     Flags, calibrates, and cleans a measurement single measurement set
 
@@ -246,21 +246,20 @@ def make_image(infile, gaintable, niter = 5000, weighting = 'briggs', robust = -
         measurement sets
     '''
     print ('Running File: ' + infile)
-    img_dir='imgs'
     if not os.path.exists(img_dir):
-        os.makedirs(directory)
+        os.makedirs(img_dir)
 
     print ('\nFlagging Data...\n')
     flag(infile)
 
     print ('\nCalibrating Data...\n')
     apply_cal(infile,gaintable)
-    imgnameFinal = infile + "Final.combined.img"
+    imgnameFinal = infile + 'Final.combined.img'
     imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
 
     print ('\nCleaning...\n')
     clean(infile, imgnameFinal, niter=niter,weighting=weighting,
-               robust=robust, imsize=imsize, cell=cell, mode=mode,
-               nterms=nterms,spw=spw,mask=mask)
+          robust=robust, imsize=imsize, cell=cell, mode=mode,
+          nterms=nterms,spw=spw,mask=mask,phasecenter=phasecenter)
 
     exportfits(imagename=(imgnameFinal+'.image'),fitsimage=(imgnameFinal+'.fits'))
