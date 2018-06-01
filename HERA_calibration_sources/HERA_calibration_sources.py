@@ -113,7 +113,6 @@ def filter_by_location(RA_range, dec_range=7.):
     hi_RA_decimal           =   15. * (hi_RA[0] + hi_RA[1]/60. + hi_RA[2]/3600.)
     filtered_data           =   data[(data["RA"] >= lo_RA_decimal) & (data["RA"] <= hi_RA_decimal)] # Filter by RA
     filtered_data           =   filtered_data[(filtered_data["dec"] >= (HERA_center - dec_range)) & (filtered_data["dec"] <= (HERA_center + dec_range))] # Filter by dec
-
     return filtered_data
 
 def calc_apparent_flux(RA_range, dec_range=7.):
@@ -149,7 +148,7 @@ def filter_by_flux(RA_range, dec_range=7., min_flux=10.):
     RA_range : tuple of strings
         The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss), with the lower RA as the first element.
     min_flux : float, optional
-        The minimum flux for objects to have (default: 10 Jy).
+        The minimum flux for objects to have in Jy (default: 10 Jy).
     dec_range : float, optional
         The range in which to search around the HERA FoV center of -30.7 degrees (default: 7.0).
 
@@ -174,7 +173,7 @@ def add_fluxes(RA_range, dec_range=7., min_flux=10.):
     RA_range : tuple of strings
         The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss), with the lower RA as the first element.
     min_flux : float, optional
-        The minimum flux for individual objects to have (default: 10 Jy).
+        The minimum flux for individual objects to have in Jy (default: 10 Jy).
     dec_range : float, optional
         The range in which to search around the HERA FoV center of -30.7 degrees (default: 7.0).
 
@@ -208,6 +207,8 @@ def add_fluxes(RA_range, dec_range=7., min_flux=10.):
     regions                     =   pd.DataFrame({"Name of Center": names, "RA": center_RA, "Dec": center_dec, "Total flux in region": flux}, columns=["Name of Center", "RA", "Dec", "Total flux in region"]) # Create a dataframe
 
     # Print information about chosen parameters
+    lo_RA_disp                          =   RA_range[0][:2] + "h" + RA_range[0][3:5] + "m" + RA_range[0][6:] + "s"
+    hi_RA_disp                          =   RA_range[1][:2] + "h" + RA_range[1][3:5] + "m" + RA_range[1][6:] + "s"
     print("\nRight ascension:\n\tLower: " + lo_RA_disp + " \n\tUpper: " + hi_RA_disp)
     print("Declination:\n\tLower: " + str(HERA_center - dec_range) + " degrees\n\tUpper: " + str(HERA_center + dec_range) + " degrees")
     print("Minimum flux: " + str(min_flux) + " Jy")
@@ -246,25 +247,20 @@ if __name__ == "__main__":
     while not flag_lo:
         lo_RA                           =   input("\tLower [hh:mm:ss]: ")
         # Check if format of lo_RA string is correct
-        if rexp.match(lo_RA):
-            flag_lo                             =   True
-            lo_RA_disp                          =   lo_RA[:2] + "h" + lo_RA[3:5] + "m" + lo_RA[6:] + "s"
+        if rexp.match(lo_RA): flag_lo   =   True
         else: print("Please input a right ascension in the form hh:mm:ss.")
 
     flag_hi                     =   False
     while not flag_hi:
         hi_RA                           =   input("\tUpper [hh:mm:ss]: ")
         # Check if format of hi_RA string is correct
-        if rexp.match(hi_RA):
-            flag_hi                             =   True
-            hi_RA_disp                          =   hi_RA[:2] + "h" + hi_RA[3:5] + "m" + hi_RA[6:] + "s"
+        if rexp.match(hi_RA): flag_hi   =   True
         else: print("Please input a right ascension in the form hh:mm:ss.")
 
     # Limit on declination
     dec_range                   =   input("What declination range around the center of the HERA FoV " + \
                                                 "would you like to search in? [default: 7 degrees] ")
-    if dec_range == "":
-        dec_range                       =   "7." # Default declination range
+    if dec_range == "":  dec_range      =   "7." # Default declination range
     # Try to convert to number
     try:
         dec_range                       =   float(dec_range)
@@ -274,8 +270,7 @@ if __name__ == "__main__":
 
     # Limit on minimum flux
     min_flux                    =   input("What minimum flux should the objects have (Jy)? [default: 10 Jy] ")
-    if min_flux == "":
-        min_flux                        =   "10." # Default minimum flux
+    if min_flux == "": min_flux         =   "10." # Default minimum flux
     # Try to convert to number
     try:
         min_flux                        =   float(min_flux)
