@@ -86,6 +86,12 @@ def read_data():
     name                    =   hdul[1].data["Source_name"] # Get the source names
     RA, dec                 =   hdul[1].data["RA"].astype(np.float), hdul[1].data["dec"].astype(np.float) # Get the location in degrees
     peak_flux, tot_flux     =   hdul[1].data["Peak_flux"].astype(np.float), hdul[1].data["Total_flux"].astype(np.float) # Get flux in mJy/beam
+
+    # Manually add Fornax A (NGC 1316)
+    name                    =   np.append(name, "Fornax A")
+    RA, dec                 =   np.append(RA, 50.673825), np.append(dec, -37.208227)
+    peak_flux, tot_flux     =   np.append(peak_flux, 7.5e5), np.append(tot_flux, 7.5e5)
+
     data                    =   pd.DataFrame({"Name": name, "RA": RA, "dec": dec, "Peak flux": peak_flux, "Total flux": tot_flux})
 
     return data
