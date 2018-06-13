@@ -132,7 +132,7 @@ def do_band_pass(infile):
         input measurement set file name
     '''
     bc=calname(infile, "B")
-    bandpass(vis=infile, spw="", minsnr=1, solnorm=F, bandtype="B", caltable=bc)
+    bandpass(vis=infile, spw="", minsnr=1, solnorm=False, bandtype="B", caltable=bc)
     applycal(infile, gaintable=[bc])
     return (bc)
 
@@ -231,9 +231,15 @@ def make_initial_image(infile,img_dir='imgs'):
 
     return (kc,gc,bc,bc1)
 
+<<<<<<< HEAD
 def make_image(infile, img_dir,gaintable, mask, niter=6000, weighting='briggs',
           robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,
           spw='0:100~800',phasecenter=''):
+=======
+def make_image(infile, gaintable, mask, niter = 5000, weighting = 'briggs', robust = -0.5,
+               imsize = [512,512], cell = ['250arcsec'], mode = 'mfs', nterms = 1,
+               spw = '0:100~800'):
+>>>>>>> acc67e345cdde59f6f4b15fd77009ce1fcad0470
     '''
     Flags, calibrates, and cleans a measurement single measurement set
 

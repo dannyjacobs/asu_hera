@@ -41,6 +41,10 @@ if __name__ == '__main__':
         # Check to see that the calibration files exist. If they do not exist,
         # generate them.
         check_f = [os.path.isdir(l) for l in gaintable]
+<<<<<<< HEAD
+=======
+
+>>>>>>> acc67e345cdde59f6f4b15fd77009ce1fcad0470
         if not all(check_f):
             gaintable = make_initial_image(folders[0])
             del folders[0]
