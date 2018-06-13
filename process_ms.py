@@ -68,7 +68,7 @@ def calinitial(infile,cal='GC.cl'):
     gaincal(infile, caltable=gc, gaintype='G', solint='inf', refant='11', minsnr=2, calmode='ap', gaintable=kc)
 
     # Apply the calibration to the infile
-    apply_cal(infile, kc, gc)
+    apply_cal(infile, [kc, gc])
     return (kc,gc)
 
 def apply_cal(infile,gaintable):
@@ -104,7 +104,7 @@ def do_split(infile,outfile,spw=""):
     #split to trick casa into allowing  another calibration
     split(infile, outfile, datacolumn="corrected", spw=spw)
 
-def do_clean(infile, imgname):
+def do_clean(infile, imgname,mask):
     '''
     Deconvolves a measurement set and produces an image
 
@@ -115,12 +115,9 @@ def do_clean(infile, imgname):
     imgname : str
         file name of the output image files
     '''
-    tb.open(os.path.join(file_to_clean,'SOURCE'))
-    ra = convert_angle(tb.getcol('DIRECTION')[0][0])
-    tb.close()
     clean(vis=infile, imagename=imgname, niter=500, weighting='briggs',
           robust=-0.5, imsize=[512,512], cell=['500arcsec'],mode='mfs',nterms=1,
-          spw='0:150~900',mask="circle[["+ ra +", -29d.00m.00.0s], 32000arcsec]")
+          spw='0:150~900',mask=mask)
 
 def do_band_pass(infile):
     '''
@@ -178,8 +175,17 @@ def convert_angle(angle):
     ra = str(hours) + 'h' + str(mins) + 'm' + str(secs) + 's'
     return (ra)
 
+def dd_to_dms(degs):
+    neg = degs < 0
+    degs = (-1) ** neg * degs
+    degs, d_int = np.modf(degs)
+    mins, m_int = np.modf(60 * degs)
+    secs        =           60 * mins
+    if neg:
+        return (str(int(-d_int)) + 'd' + str(int(m_int)) +'m'+ str(secs) + 's')
+    return (str(int(d_int)) + 'd' + str(int(m_int)) +'m'+ str(secs) + 's')
 
-def make_initial_image(infile,img_dir='imgs'):
+def make_initial_image(infile,mask,img_dir='imgs'):
     '''
     Runs the full processing algorithm including calibration file creation on
     a measurement set. This is used to calibrate subsequent files to an initial
@@ -199,7 +205,7 @@ def make_initial_image(infile,img_dir='imgs'):
     flag(infile)
 
     print ('\nInitial Calibration...\n')
-    kc, gc = calinitial(infile)
+    kc, gc = calinitial(infile,'Fornax.cl')
     imgname = os.path.basename(infile)+ ".init.img"
     file_to_clean = os.path.basename(infile) + "split" + ".ms"
 
@@ -207,18 +213,18 @@ def make_initial_image(infile,img_dir='imgs'):
     do_split(infile,os.path.basename(infile) + "split" + ".ms")
 
     print ('\nCleaning Data...\n')
-    do_clean(file_to_clean, imgname)
+    do_clean(file_to_clean, imgname,mask=mask)
 
     print ('\nRunning Band Pass...\n')
     bc = do_band_pass(file_to_clean)
 
     print ('\nSplitting Columns...\n')
-    do_split(file_to_clean,os.path.basename(infile) + "c2" + ".ms",spw="0:100~800")
-    file_2_clean= os.path.basename(file_to_clean) + "c2" + ".ms"
+    do_split(file_to_clean,os.path.basename(file_to_clean) + "c2.ms",spw="0:100~800")
+    file_2_clean= os.path.basename(file_to_clean) + "c2.ms"
     imgname2= os.path.basename(file_to_clean)+".init.img"
 
     print ('\nCleaning Data...\n')
-    do_clean(file_2_clean,imgname2)
+    do_clean(file_2_clean,imgname2,mask=mask)
 
     print ('\nRunning Band Pass...\n')
     bc1 = do_band_pass(file_2_clean)
@@ -227,19 +233,14 @@ def make_initial_image(infile,img_dir='imgs'):
     imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
 
     print ('\nFinal Clean...\n')
-    clean_final(file_3_clean, imgnameFinal)
-
+    clean(file_3_clean, imgnameFinal, mask=mask, niter=6000, weighting='briggs',
+          robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,
+          spw='0:100~800')
     return (kc,gc,bc,bc1)
 
-<<<<<<< HEAD
 def make_image(infile, img_dir,gaintable, mask, niter=6000, weighting='briggs',
           robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,
           spw='0:100~800',phasecenter=''):
-=======
-def make_image(infile, gaintable, mask, niter = 5000, weighting = 'briggs', robust = -0.5,
-               imsize = [512,512], cell = ['250arcsec'], mode = 'mfs', nterms = 1,
-               spw = '0:100~800'):
->>>>>>> acc67e345cdde59f6f4b15fd77009ce1fcad0470
     '''
     Flags, calibrates, and cleans a measurement single measurement set
 
