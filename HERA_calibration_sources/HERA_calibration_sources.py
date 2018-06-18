@@ -9,6 +9,7 @@ from scipy.optimize import curve_fit
 from pyuvdata import UVBeam
 from astropy.io import fits
 import pdb
+import json
 
 c                       =   299792458. # Speed of light
 wavelength              =   c/150e6 # Average wavelength of interest
@@ -242,6 +243,16 @@ def find_nearest(array, value):
     index                   =   (np.abs(array - value)).argmin()
     return array[index]
 
+def reformat_df(df,save_json=False,json_name='sources.json'):
+    src_dict = { v['Name of Center']: {'DEC': v['Dec'], 'RA': v['RA'],
+                                       'Total_flux': v['Total flux in region']}
+                                       for _,v in df.iterrows()}
+    print src_dict
+    if save_json:
+        with open(json_name, 'w') as f:
+            json.dump(src_dict, f)
+
+
 def gaussian_function(x, amp, mu, sigma):
     return amp*np.exp(-0.5*((x - mu)/sigma)**2)
 
@@ -286,3 +297,4 @@ if __name__ == "__main__":
 
     # Find regions
     regions                     =   add_fluxes(RA_range=(lo_RA, hi_RA), dec_range=dec_range, min_flux=min_flux)
+    reformat_df(regions,save_json=True,json_name='mask_sources.json')
