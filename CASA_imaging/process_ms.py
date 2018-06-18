@@ -26,6 +26,14 @@ class CASA_Imaging:
         else:
             self.gaintable = config_data['calibration_files']
 
+
+        self.run_folder = config_data['data_path']['run_folder']
+        self.img_folder = config_data['data_path']['image_folder']
+
+        if not os.path.exists(self.run_folder):
+            os.makedirs(self.run_folder)
+            os.makedirs(os.path.join(self.run_folder, self.img_folder))
+
         self.final_img_clean = config_data['clean']
 
     def _calname(self,m,c):
@@ -180,19 +188,18 @@ class CASA_Imaging:
         img_dir : str
             directory name where image files are written
         '''
-        if not os.path.exists(img_dir):
-            os.makedirs(img_dir)
-
+        run_dir = self.run_folder
+        img_dir = self.img_folder
         print ('\nFlagging Data...\n')
         self._flag(infile)
 
         print ('\nInitial Calibration...\n')
         kc, gc = self._gaincal(infile)
-        imgname = os.path.basename(infile)+ ".init.img"
-        file_to_clean = os.path.basename(infile) + "split" + ".ms"
+        imgname = os.path.join(run_dir,os.path.basename(infile)+ ".init.img")
+        file_to_clean = os.path.join(run_dir,os.path.basename(infile) + "split" + ".ms")
 
         print ('\nSplitting Columns...\n')
-        self._split(infile,os.path.basename(infile) + "split" + ".ms")
+        self._split(infile,file_to_clean)
 
         print ('\nCleaning Data...\n')
         self._clean(file_to_clean, imgname, **self.clean_1_params)
@@ -201,9 +208,9 @@ class CASA_Imaging:
         bc = self._band_pass(file_to_clean, **self.band_pass_1)
 
         print ('\nSplitting Columns...\n')
-        self._split(file_to_clean,os.path.basename(file_to_clean) + "c2.ms",spw="0:100~800")
-        file_2_clean = os.path.basename(file_to_clean) + "c2.ms"
-        imgname2 = os.path.basename(file_to_clean)+".init.img"
+        self._split(file_to_clean, file_to_clean + "c2.ms", spw="0:100~800")
+        file_2_clean = file_to_clean + "c2.ms"
+        imgname2 = file_to_clean +".init.img"
 
         print ('\nCleaning Data...\n')
         self._clean(vis=file_2_clean, imagename=imgname2, **self.clean_2_params)
@@ -232,8 +239,7 @@ class CASA_Imaging:
             measurement sets
         '''
         print ('Running File: ' + infile)
-        if not os.path.exists(img_dir):
-            os.makedirs(img_dir)
+        img_dir = self.img_folder
 
         print ('\nFlagging Data...\n')
         self._flag(infile)

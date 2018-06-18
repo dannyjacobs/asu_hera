@@ -100,15 +100,21 @@ if __name__ == '__main__':
     config = args.params
 
     with open(config) as f:
-        config_data = json.loads(f)
+        config_data = json.load(f)
 
     ci = CASA_Imaging(config_data)
 
     if config_data['new_calibration']:
-        gaintable = make_initial()
+        gaintable = create_cal_files()
 
-    clean_params = config_data['clean']
+    sources_file = config_data['clean_mask_sources']['file_name']
+    mask_dec = config_data['base_mask_params']['dec']
+    mask_radius = config_data['base_mask_params']['radius']
+    
+    with open(sources_file) as f:
+        sources = json.load(f)
 
     for folder in folders:
-        mask = set_mask(folder)
-        ci.make_image(folder,img_dir)
+        ra, _ = find_ra_dec(folder)
+        mask = set_mask(ra,mask_dec,sources,mask_size=mask_radius)
+        ci.make_image(folder)
