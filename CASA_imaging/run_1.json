@@ -81,10 +81,10 @@
   },
 
   "_cal_file_comments" : "Define the path to these files if you do not want to create a new calibration",
-  "calibration_files" : ["zen.2458042.50580.xx.HH.uvR.uvfits.msG.cal",
-                         "zen.2458042.50580.xx.HH.uvR.uvfits.msK.cal",
-                         "zen.2458042.50580.xx.HH.uvR.uvfits.mssplit.msB.cal",
-                         "zen.2458042.50580.xx.HH.uvR.uvfits.mssplit.msc2.msB.cal"],
+  "calibration_files" : ["/data6/HERA/data/2458042/HERA_imaging/run_3/zen.2458042.12552.xx.HH.uvR.uvfits.msG.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_3/zen.2458042.12552.xx.HH.uvR.uvfits.msK.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_3/zen.2458042.12552.xx.HH.uvR.uvfits.mssplit.msB.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_3/zen.2458042.12552.xx.HH.uvR.uvfits.mssplit.msc2.msB.cal"],
 
   "_clean_mask_comments" : "clean_mask_sources are the sources that will be masked as they move into the field of view.",
   "clean_mask_sources" : {
