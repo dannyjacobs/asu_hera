@@ -8,12 +8,11 @@ from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
 from pyuvdata import UVBeam
 from astropy.io import fits
-import pdb
 import json
 
 c                       =   299792458. # Speed of light
 wavelength              =   c/150e6 # Average wavelength of interest
-max_baseline            =   100. # Length of longgest baseline
+max_baseline            =   100. # Length of longest baseline
 ang_res                 =   wavelength/max_baseline * 180./np.pi # Approximate angular resolution in degrees
 HERA_center             =   -30.7214 # FoV centered at declination -30.7214 degrees
 
@@ -44,12 +43,12 @@ def beam_model(target_long=45, plot=False):
     nside, hpx_inds         =   HERA_beam.nside, HERA_beam.pixel_array
     colat, long             =   hp.pixelfunc.pix2ang(nside=nside, ipix=hpx_inds, nest=False, lonlat=False) # Convert from HEALPix coordinates to long/zen
     long, colat             =   np.degrees(long), np.degrees(colat)
-    power_xx                =   HERA_beam.data_array[0][0][0][50] # Power at 150 MHz - XX polaricolattion
+    power_xx                =   HERA_beam.data_array[0][0][0][50] # Power at 150 MHz - XX polarization
 
     closest_long            =   find_nearest(long, target_long) # In case the target angle isn't actually in the simulation
     mask                    =   (long == closest_long) # Mask out everything but the closest angle
-    new_colat, power        =   colat[mask], power_xx[mask] # Zenith angle and power for the given longimuthal angle
-    power_norm              =   power/np.max(power) # Normalize to be used as a scaling factor
+    new_colat, power        =   colat[mask], power_xx[mask] # Zenith angle and power for the given azimuthal angle
+    power_norm              =   power/np.max(power) # Normalize to the peak power at center of beam
 
     interp_beam             =   interp1d(new_colat, power_norm) # Interpolate the beam as a function of the zenith angle
     colat_interp            =   np.linspace(0.8, 10, 1000)
@@ -244,7 +243,7 @@ def find_nearest(array, value):
     return array[index]
 
 def reformat_df(df,save_json=False,json_name='sources.json'):
-    src_dict = { v['Name of Center']: {'DEC': v['Dec'], 'RA': v['RA'],
+    src_dict                =   { v['Name of Center']: {'DEC': v['Dec'], 'RA': v['RA'],
                                        'Total_flux': v['Total flux in region']}
                                        for _,v in df.iterrows()}
     print src_dict
