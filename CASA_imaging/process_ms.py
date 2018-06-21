@@ -26,17 +26,14 @@ class CASA_Imaging:
         else:
             self.gaintable = config_data['calibration_files']
 	
-	for i,t in enumerate(self.gaintable):
-	    self.gaintable[i] = str(t)
-
-
         self.run_folder = config_data['data_path']['run_folder']
         self.img_folder = os.path.join(self.run_folder, config_data['data_path']['image_folder'])
 
         if not os.path.exists(self.run_folder):
             os.makedirs(self.run_folder)
-            os.makedirs(self.run_folder, self.img_folder)
-
+        if not os.path.exists(self.img_folder):
+	    os.makedirs(self.img_folder)
+	
         self.final_clean_params = config_data['clean']
 
     def _calname(self,m,c):
@@ -131,7 +128,6 @@ class CASA_Imaging:
         '''
         if gaintable is None:
             gaintable = self.gaintable
-
         applycal(infile,gaintable=gaintable)
 
     def _split(self,infile,outfile,spw=""):
@@ -197,7 +193,7 @@ class CASA_Imaging:
         img_dir = self.img_folder
         print ('\nFlagging Data...\n')
         self._flag(infile)
-
+	self.create_model(infile)
         print ('\nInitial Calibration...\n')
         kc, gc = self._gaincal(infile)
         imgname = os.path.join(run_dir,os.path.basename(infile)+ ".init.img")
@@ -231,7 +227,7 @@ class CASA_Imaging:
 
         self.gaintable = [kc,gc,bc,bc1]
 
-    def make_image(self, infile, **kwargs):
+    def make_image(self, infile):
         '''
         Flags, calibrates, and cleans a measurement single measurement set
 
@@ -247,14 +243,17 @@ class CASA_Imaging:
         img_dir = self.img_folder
 
         print ('\nFlagging Data...\n')
-        self._flag(infile)
+        flagdata(infile, autocorr=True)
+
 	print self.gaintable
         print ('\nCalibrating Data...\n')
-        self._apply_cal(infile, self.gaintable)
+
+        applycal(infile, gaintable=self.gaintable)
         imgnameFinal = infile + 'Final.combined.img'
         imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
-
-        print ('\nCleaning...\n')
-        clean(infile, imgnameFinal, **kwargs)
+	
+	print self.final_clean_params
+	print ('\nCleaning...\n')
+        clean(infile, imgnameFinal, **self.final_clean_params)
 
         exportfits(imagename=(imgnameFinal+'.image'),fitsimage=(imgnameFinal+'.fits'))

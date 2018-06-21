@@ -10,9 +10,20 @@ casa -c casa_image_ms.py <run paramters>.json <measurement sets>.ms
 from casa import *
 import numpy as np
 import os
+import collections
 import json
 import argparse
 from process_ms import CASA_Imaging
+
+def convert_json(data):
+    if isinstance(data, basestring):
+        return data.encode('utf-8')
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert_json, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert_json, data))
+    else:
+        return data
 
 def rad_to_hms(angle):
     '''
@@ -93,12 +104,10 @@ if __name__ == '__main__':
     config = [arg for arg in args if arg.endswith('json')][0]
 
     with open(config) as f:
-        config_data = json.load(f)
+        config_data = convert_json(json.load(f))
 
     ci = CASA_Imaging(config_data)
 
-    print config_data['new_calibration']
-    
     if config_data['new_calibration'] == 'True':
         ci.create_cal_files()
 
@@ -111,6 +120,13 @@ if __name__ == '__main__':
 
     for folder in folders:
         ra, _ = find_ra_dec(folder)
-        mask = set_mask(ra,mask_dec,sources,mask_size=mask_radius)
-        ci.final_img_clean['mask'] = mask
+        mask = set_mask(ra, mask_dec, sources, mask_size=mask_radius)
+
+	if mask.endswith('rgn'):
+		print os.path.join(ci.run_folder, mask)
+		ci.final_clean_params['mask'] = os.path.join(ci.run_folder, mask)
+	else:
+		print mask
+		ci.final_clean_params['mask'] = mask
+
 	ci.make_image(folder)
