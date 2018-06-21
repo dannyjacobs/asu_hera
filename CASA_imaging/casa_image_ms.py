@@ -3,9 +3,10 @@ Tweak the calibration and clean parameters in the run.json file
 for an imaging run of the sky.
 
 To run (in terminal):
-casa -c casa_image_ms.py -p <run paramters>.json -f <measurement sets>.ms
+casa -c casa_image_ms.py <run paramters>.json <measurement sets>.ms
 
 '''
+
 from casa import *
 import numpy as np
 import os
@@ -37,7 +38,7 @@ def rad_to_hms(angle):
     ra = str(hours) + 'h' + str(mins) + 'm' + str(secs) + 's'
     return (ra)
 
-def dd_to_dms(angle):
+def dd_to_dms(degs):
     '''
     Converts an angle in decimal degrees to a degrees, minutes, and seconds
 
@@ -64,16 +65,14 @@ def find_ra_dec(folder):
     tb.open(os.path.join(folder,'SOURCE'))
     angle_ra = tb.getcol('DIRECTION')[0][0]
     angle_dec = tb.getcol('DIRECTION')[1][0]
-    ra = rad_to_hms(angle_ra)
-    dec = dd_to_dms(np.rad2deg(angle_dec))
     tb.close()
-    return ra, dec
+    return angle_ra, angle_dec
 
 
 def set_mask(ra, dec, srcs, mask_size='32000arcsec', imsize=512, cell_size=250):
     fov = np.deg2rad((imsize * cell_size)/3600)
-    mask = 'circle[[' + ra + ', ' + dec + '], ' + mask_size + ']'
-    final_srcs = {k: src for k,src in srcs.iteritems() if angle_ra-fov/2 <= src['RA'] <= angle_ra+fov/2} # check if sources cross into the FOV
+    mask = 'circle[[' + rad_to_hms(ra) + ', ' + dec + '], ' + mask_size + ']'
+    final_srcs = {k: src for k,src in srcs.iteritems() if ra-fov/2 <= src['RA'] <= ra+fov/2} # check if sources cross into the FOV
     if len(final_srcs) > 0:
         fname = 'mask.rgn'
         with open(fname,'w') as f:
@@ -86,26 +85,22 @@ def set_mask(ra, dec, srcs, mask_size='32000arcsec', imsize=512, cell_size=250):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Get some files according to a pattern')
-    parser.add_argument("-p", "--params", required=True,
-                        help="Name of the parameter file for this particular run")
-    parser.add_argument('-f','--run_files', type=str, action='store', nargs='+',
-                        help="Name of the measurement set(s) being processed by \
-                              the run script.")
-    args = parser.parse_args()
-
-    folders = args.run_files
+    args = sys.argv[3:]
+    folders = [folder for folder in args if folder.endswith('ms')]
     folders.sort()
-
-    config = args.params
+	
+    
+    config = [arg for arg in args if arg.endswith('json')][0]
 
     with open(config) as f:
         config_data = json.load(f)
 
     ci = CASA_Imaging(config_data)
 
-    if config_data['new_calibration']:
-        gaintable = create_cal_files()
+    print config_data['new_calibration']
+    
+    if config_data['new_calibration'] == 'True':
+        ci.create_cal_files()
 
     sources_file = config_data['clean_mask_sources']['file_name']
     mask_dec = config_data['base_mask_params']['dec']
@@ -117,4 +112,5 @@ if __name__ == '__main__':
     for folder in folders:
         ra, _ = find_ra_dec(folder)
         mask = set_mask(ra,mask_dec,sources,mask_size=mask_radius)
-        ci.make_image(folder)
+        ci.final_img_clean['mask'] = mask
+	ci.make_image(folder)
