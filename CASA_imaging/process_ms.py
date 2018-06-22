@@ -247,9 +247,11 @@ class CASA_Imaging:
 
 	print self.gaintable
         print ('\nCalibrating Data...\n')
-
-        applycal(infile, gaintable=self.gaintable)
-        imgnameFinal = infile + 'Final.combined.img'
+	
+	if len(self.gaintable) > 0:
+        	applycal(infile, gaintable=self.gaintable)
+        
+	imgnameFinal = infile + 'Final.combined.img'
         imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
 	
 	print self.final_clean_params
