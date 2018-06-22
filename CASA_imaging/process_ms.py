@@ -102,11 +102,11 @@ class CASA_Imaging:
             gcal = self.gcal
 
         #create calibration files
-        kc = calname(infile, "K")
+        kc = self._calname(infile, "K")
         gaincal(infile, caltable=kc, gaintype='K', **kcal)
 
         #check for frequency errors
-        gc = calname(infile, "G")
+        gc = self._calname(infile, "G")
         gaincal(infile, caltable=gc, gaintype='G', gaintable=kc, **gcal)
 
         # Apply the calibration to the infile
@@ -169,8 +169,8 @@ class CASA_Imaging:
         infile : str
             input measurement set file name
         '''
-        bc = calname(infile, "B")
-        bandpass(vis=infile, **kwargs)
+        bc = self._calname(infile, "B")
+        bandpass(vis=infile, caltable = bc, **kwargs)
         applycal(infile, gaintable=[bc])
         return (bc)
 
@@ -193,7 +193,7 @@ class CASA_Imaging:
         img_dir = self.img_folder
         print ('\nFlagging Data...\n')
         self._flag(infile)
-	self.create_model(infile)
+	
         print ('\nInitial Calibration...\n')
         kc, gc = self._gaincal(infile)
         imgname = os.path.join(run_dir,os.path.basename(infile)+ ".init.img")

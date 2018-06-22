@@ -15,6 +15,14 @@ import json
 import argparse
 from process_ms import CASA_Imaging
 
+def create_model(infile, cal_sources, model_name):
+        for _, params in cal_sources.iteritems():
+            cl.addcomponent(**params)
+        cl.rename(model_name)
+        cl.close()
+        ft(infile, complist=model_name, usescratch=True)
+
+
 def convert_json(data):
     if isinstance(data, basestring):
         return data.encode('utf-8')
@@ -107,9 +115,13 @@ if __name__ == '__main__':
         config_data = convert_json(json.load(f))
 
     ci = CASA_Imaging(config_data)
-
     if config_data['new_calibration'] == 'True':
-        ci.create_cal_files()
+        cal_params = config_data['new_cal_params']
+	infile = cal_params['file_to_calibrate']
+	model_name = cal_params['model_name']
+	cal_sources = cal_params['cal_sources']
+	create_model(infile,cal_sources,model_name)
+	ci.create_cal_files()
 
     sources_file = config_data['clean_mask_sources']['file_name']
     mask_dec = config_data['base_mask_params']['dec']

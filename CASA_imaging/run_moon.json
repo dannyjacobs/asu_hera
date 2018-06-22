@@ -4,14 +4,14 @@
     "image_folder": "imgs"
   },
 
-  "new_calibration": "False",
+  "new_calibration": "True",
 
   "new_cal_params": {
-    "file_to_calibrate": "/data6/HERA/data/2458042/KM_uvR_files/zen.2458042.12552.xx.HH.uvR.uvfits.ms",
-    "model_name": "GC.cl",
+    "file_to_calibrate": "/data6/HERA/data/2458055/zen.2458055.47597.xx.HH.uvR.uvfits.ms",
+    "model_name": "Fornax_model.cl",
     "cal_sources" : {
-      "galactic_center": {
-        "dir": "J2000 17h45m40.0409s −29d0m28.118s",
+      "Fornax galaxy": {
+        "dir": "J2000 03h22m41.7s −37d12m30s",
         "shape": "point",
         "fluxunit": "Jy",
         "flux": 1
@@ -54,7 +54,7 @@
     },
 
     "clean_final" : {
-      "niter": 6000,
+      "niter": 0,
       "weighting": "briggs",
       "robust" :   -0.5,
       "imsize" :   [512,512],
@@ -95,13 +95,13 @@
   },
 
   "clean" : {
-    "niter" : 0,
+    "niter" : 6000,
     "weighting" : "briggs",
     "robust" :   -0.5,
     "imsize" :   [512,512],
     "cell" :   ["250arcsec"],
     "mode" :   "mfs",
     "nterms" :   1,
-    "spw" : "0:100~800"
+    "spw" : "0:410~512"
   }
 }
