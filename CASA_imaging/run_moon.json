@@ -68,14 +68,12 @@
     "band_pass_1" : {
       "spw":"",
       "minsnr":1,
-      "solnorm":"False",
       "bandtype":"B"
     },
 
     "band_pass_2" : {
       "spw":"",
       "minsnr":1,
-      "solnorm":"False",
       "bandtype":"B"
     }
   },

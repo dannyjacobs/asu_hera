@@ -170,7 +170,8 @@ class CASA_Imaging:
             input measurement set file name
         '''
         bc = self._calname(infile, "B")
-        bandpass(vis=infile, caltable = bc, **kwargs)
+        print bc
+	bandpass(vis=infile, caltable=bc, solnorm=False, **kwargs)
         applycal(infile, gaintable=[bc])
         return (bc)
 
