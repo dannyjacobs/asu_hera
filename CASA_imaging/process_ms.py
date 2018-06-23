@@ -204,7 +204,7 @@ class CASA_Imaging:
         self._split(infile,file_to_clean)
 
         print ('\nCleaning Data...\n')
-        self._clean(file_to_clean, imgname, **self.clean_1_params)
+        clean(vis=file_to_clean,imagename=imgname, **self.clean_1_params)
 
         print ('\nRunning Band Pass...\n')
         bc = self._band_pass(file_to_clean, **self.band_pass_1)
@@ -215,7 +215,7 @@ class CASA_Imaging:
         imgname2 = file_to_clean +".init.img"
 
         print ('\nCleaning Data...\n')
-        self._clean(vis=file_2_clean, imagename=imgname2, **self.clean_2_params)
+        clean(vis=file_2_clean, imagename=imgname2, **self.clean_2_params)
 
         print ('\nRunning Band Pass...\n')
         bc1 = self._band_pass(file_2_clean, **self.band_pass_2)
@@ -224,7 +224,7 @@ class CASA_Imaging:
         imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
 
         print ('\nFinal Clean...\n')
-        self._clean(vis=file_3_clean, imagename=imgnameFinal, **self.clean_final_params)
+        clean(vis=file_3_clean, imagename=imgnameFinal, **self.clean_final_params)
 
         self.gaintable = [kc,gc,bc,bc1]
 
