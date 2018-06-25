@@ -1,13 +1,13 @@
 {
   "data_path" : {
     "run_folder": "/data6/HERA/HERA_imaging/dirty_moon_run",
-    "image_folder": "imgs"
+    "image_folder": "imgs3"
   },
 
-  "new_calibration": "True",
+  "new_calibration": "False",
 
   "new_cal_params": {
-    "file_to_calibrate": "/data6/HERA/data/2458055/zen.2458055.47597.xx.HH.uvR.uvfits.ms",
+    "file_to_calibrate": "/data6/HERA/data/2458055/zen.2458055.47597.xx.HH.uvOR.uvfits.ms",
     "model_name": "Fornax_model.cl",
     "cal_sources" : {
       "Fornax galaxy": {
@@ -79,7 +79,10 @@
   },
 
   "_cal_file_comments" : "Define the path to these files if you do not want to create a new calibration",
-  "calibration_files" : [],
+  "calibration_files" : ["/data6/HERA/HERA_imaging/dirty_moon_run/zen.2458055.47597.xx.HH.uvOR.uvfits.msG.cal",
+"/data6/HERA/HERA_imaging/dirty_moon_run/zen.2458055.47597.xx.HH.uvOR.uvfits.msK.cal",
+"/data6/HERA/HERA_imaging/dirty_moon_run/zen.2458055.47597.xx.HH.uvOR.uvfits.mssplit.msB.cal",
+"/data6/HERA/HERA_imaging/dirty_moon_run/zen.2458055.47597.xx.HH.uvOR.uvfits.mssplit.msc2.msB.cal"],
 
   "_clean_mask_comments" : "clean_mask_sources are the sources that will be masked as they move into the field of view.",
   "clean_mask_sources" : {
