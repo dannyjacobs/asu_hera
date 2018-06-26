@@ -46,10 +46,10 @@ class CASA_Imaging:
 	self.flag_params = config_data['flag']
 
 	try:
-            if self.cal_flag['autocorr'] == "True":
-                self.cal_flag['autocorr'] = True
-            elif self.cal_flag['autocorr'] == "False":
-                self.cal_flag['autocorr'] = False
+            if self.flag_params['autocorr'] == "True":
+                self.flag_params['autocorr'] = True
+            elif self.flag_params['autocorr'] == "False":
+                self.flag_params['autocorr'] = False
         except:
             pass
 
