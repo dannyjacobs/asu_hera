@@ -7,6 +7,10 @@
   "new_calibration": "False",
 
   "new_cal_params": {
+    "flag":{
+      "autocorr": "True",
+      "mode": "tfcrop"
+},
     "file_to_calibrate": "/data6/HERA/data/2458028/zen.2458028.16719.xx.HH.uv.uvfits.ms",
     "model_name": "GC.cl",
     "cal_sources" : {
@@ -94,6 +98,11 @@
     "dec": "-30d47m17s",
     "radius": "32000arcsec"
   },
+
+ "flag":{
+      "autocorr": "True", 
+      "mode": "tfcrop"
+},
 
   "clean" : {
     "niter" : 6000,
