@@ -77,6 +77,11 @@
       "minsnr":1,
       "solnorm":"False",
       "bandtype":"B"
+    },
+
+    "flag": {
+      "autocorr": "True",
+      "mode": "tfcrop"   
     }
   },
 
@@ -95,6 +100,11 @@
   "base_mask_params": {
     "dec": "-30d47m17s",
     "radius": "32000arcsec"
+  },
+
+  "flag": {
+    "autocorr": "False",
+    "mode": "tfcrop" 
   },
 
   "clean" : {

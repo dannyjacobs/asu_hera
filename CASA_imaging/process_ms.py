@@ -23,6 +23,14 @@ class CASA_Imaging:
             self.clean_final_params = cal_params['clean_final']
             self.band_pass_1 = cal_params['band_pass_1']
             self.band_pass_2 = cal_params['band_pass_2']
+	    self.cal_flag = cal_params['flag']
+	    try:
+		if self.cal_flag['autocorr'] == "True":
+			self.cal_flag['autocorr'] = True
+		elif self.cal_flag['autocorr'] == "False":
+			self.cal_flag['autocorr'] = False
+	    except:
+		pass
         else:
             self.gaintable = config_data['calibration_files']
 	
@@ -35,6 +43,15 @@ class CASA_Imaging:
 	    os.makedirs(self.img_folder)
 	
         self.final_clean_params = config_data['clean']
+	self.flag_params = config_data['flag']
+
+	try:
+            if self.cal_flag['autocorr'] == "True":
+                self.cal_flag['autocorr'] = True
+            elif self.cal_flag['autocorr'] == "False":
+                self.cal_flag['autocorr'] = False
+        except:
+            pass
 
     def _calname(self,m,c):
         '''
@@ -193,7 +210,7 @@ class CASA_Imaging:
         run_dir = self.run_folder
         img_dir = self.img_folder
         print ('\nFlagging Data...\n')
-        self._flag(infile)
+        flagdata(infile, **self.cal_flag)
 	
         print ('\nInitial Calibration...\n')
         kc, gc = self._gaincal(infile)
@@ -244,7 +261,7 @@ class CASA_Imaging:
         img_dir = self.img_folder
 
         print ('\nFlagging Data...\n')
-        flagdata(infile, autocorr=True)
+        flagdata(infile, **self.flag_params)
 
 	print self.gaintable
         print ('\nCalibrating Data...\n')
