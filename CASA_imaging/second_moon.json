@@ -1,17 +1,17 @@
 {
   "data_path" : {
-    "run_folder": "/data6/HERA/HERA_imaging/dirty_moon_run",
-    "image_folder": "imgs3"
+    "run_folder": "/data6/HERA/HERA_imaging/second_moon_run/dirty_uvtest",
+    "image_folder": "imgs"
   },
 
   "new_calibration": "False",
 
   "new_cal_params": {
-    "file_to_calibrate": "/data6/HERA/data/2458055/zen.2458055.47597.xx.HH.uvOR.uvfits.ms",
-    "model_name": "Fornax_model.cl",
+    "file_to_calibrate": "/data6/HERA/data/2458028/zen.2458028.16719.xx.HH.uv.uvfits.ms",
+    "model_name": "GC.cl",
     "cal_sources" : {
-      "Fornax galaxy": {
-        "dir": "J2000 03h22m41.7s −37d12m30s",
+      "Galactic Center": {
+        "dir": "J2000 17h45m40.04s −29d00m28.1s",
         "shape": "point",
         "fluxunit": "Jy",
         "flux": 1
@@ -79,10 +79,10 @@
   },
 
   "_cal_file_comments" : "Define the path to these files if you do not want to create a new calibration",
-  "calibration_files" : ["/data6/HERA/HERA_imaging/dirty_moon_run/zen.2458055.47597.xx.HH.uvOR.uvfits.msG.cal",
-"/data6/HERA/HERA_imaging/dirty_moon_run/zen.2458055.47597.xx.HH.uvOR.uvfits.msK.cal",
-"/data6/HERA/HERA_imaging/dirty_moon_run/zen.2458055.47597.xx.HH.uvOR.uvfits.mssplit.msB.cal",
-"/data6/HERA/HERA_imaging/dirty_moon_run/zen.2458055.47597.xx.HH.uvOR.uvfits.mssplit.msc2.msB.cal"],
+  "calibration_files" : ["/data6/HERA/HERA_imaging/second_moon_run/autocorr_uv_run/zen.2458028.16719.xx.HH.uv.uvfits.msG.cal",
+"/data6/HERA/HERA_imaging/second_moon_run/autocorr_uv_run/zen.2458028.16719.xx.HH.uv.uvfits.msK.cal",
+"/data6/HERA/HERA_imaging/second_moon_run/autocorr_uv_run/zen.2458028.16719.xx.HH.uv.uvfits.mssplit.msB.cal",
+"/data6/HERA/HERA_imaging/second_moon_run/autocorr_uv_run/zen.2458028.16719.xx.HH.uv.uvfits.mssplit.msc2.msB.cal"],
 
   "_clean_mask_comments" : "clean_mask_sources are the sources that will be masked as they move into the field of view.",
   "clean_mask_sources" : {
