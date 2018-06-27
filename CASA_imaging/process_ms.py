@@ -23,21 +23,35 @@ class CASA_Imaging:
             self.clean_final_params = cal_params['clean_final']
             self.band_pass_1 = cal_params['band_pass_1']
             self.band_pass_2 = cal_params['band_pass_2']
+	    self.cal_flag = cal_params['flag']
+	    try:
+		if self.cal_flag['autocorr'] == "True":
+			self.cal_flag['autocorr'] = True
+		elif self.cal_flag['autocorr'] == "False":
+			self.cal_flag['autocorr'] = False
+	    except:
+		pass
         else:
             self.gaintable = config_data['calibration_files']
 	
-	for i,t in enumerate(self.gaintable):
-	    self.gaintable[i] = str(t)
-
-
         self.run_folder = config_data['data_path']['run_folder']
         self.img_folder = os.path.join(self.run_folder, config_data['data_path']['image_folder'])
 
         if not os.path.exists(self.run_folder):
             os.makedirs(self.run_folder)
-            os.makedirs(self.run_folder, self.img_folder)
-
+        if not os.path.exists(self.img_folder):
+	    os.makedirs(self.img_folder)
+	
         self.final_clean_params = config_data['clean']
+	self.flag_params = config_data['flag']
+
+	try:
+            if self.flag_params['autocorr'] == "True":
+                self.flag_params['autocorr'] = True
+            elif self.flag_params['autocorr'] == "False":
+                self.flag_params['autocorr'] = False
+        except:
+            pass
 
     def _calname(self,m,c):
         '''
@@ -105,11 +119,11 @@ class CASA_Imaging:
             gcal = self.gcal
 
         #create calibration files
-        kc = calname(infile, "K")
+        kc = os.path.join(self.run_folder,self._calname(infile, "K"))
         gaincal(infile, caltable=kc, gaintype='K', **kcal)
 
         #check for frequency errors
-        gc = calname(infile, "G")
+        gc = os.path.join(self.run_folder,self._calname(infile, "G"))
         gaincal(infile, caltable=gc, gaintype='G', gaintable=kc, **gcal)
 
         # Apply the calibration to the infile
@@ -131,7 +145,6 @@ class CASA_Imaging:
         '''
         if gaintable is None:
             gaintable = self.gaintable
-
         applycal(infile,gaintable=gaintable)
 
     def _split(self,infile,outfile,spw=""):
@@ -173,8 +186,9 @@ class CASA_Imaging:
         infile : str
             input measurement set file name
         '''
-        bc = calname(infile, "B")
-        bandpass(vis=infile, **kwargs)
+        bc = self._calname(infile, "B")
+	bc = os.path.join(self.run_folder,bc)
+	bandpass(vis=infile, caltable=bc, solnorm=False, **kwargs)
         applycal(infile, gaintable=[bc])
         return (bc)
 
@@ -196,8 +210,8 @@ class CASA_Imaging:
         run_dir = self.run_folder
         img_dir = self.img_folder
         print ('\nFlagging Data...\n')
-        self._flag(infile)
-
+        flagdata(infile, **self.cal_flag)
+	
         print ('\nInitial Calibration...\n')
         kc, gc = self._gaincal(infile)
         imgname = os.path.join(run_dir,os.path.basename(infile)+ ".init.img")
@@ -207,7 +221,7 @@ class CASA_Imaging:
         self._split(infile,file_to_clean)
 
         print ('\nCleaning Data...\n')
-        self._clean(file_to_clean, imgname, **self.clean_1_params)
+        clean(vis=file_to_clean,imagename=imgname, **self.clean_1_params)
 
         print ('\nRunning Band Pass...\n')
         bc = self._band_pass(file_to_clean, **self.band_pass_1)
@@ -218,7 +232,7 @@ class CASA_Imaging:
         imgname2 = file_to_clean +".init.img"
 
         print ('\nCleaning Data...\n')
-        self._clean(vis=file_2_clean, imagename=imgname2, **self.clean_2_params)
+        clean(vis=file_2_clean, imagename=imgname2, **self.clean_2_params)
 
         print ('\nRunning Band Pass...\n')
         bc1 = self._band_pass(file_2_clean, **self.band_pass_2)
@@ -227,11 +241,11 @@ class CASA_Imaging:
         imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
 
         print ('\nFinal Clean...\n')
-        self._clean(vis=file_3_clean, imagename=imgnameFinal, **self.clean_final_params)
+        clean(vis=file_3_clean, imagename=imgnameFinal, **self.clean_final_params)
 
         self.gaintable = [kc,gc,bc,bc1]
 
-    def make_image(self, infile, **kwargs):
+    def make_image(self, infile):
         '''
         Flags, calibrates, and cleans a measurement single measurement set
 
@@ -247,14 +261,19 @@ class CASA_Imaging:
         img_dir = self.img_folder
 
         print ('\nFlagging Data...\n')
-        self._flag(infile)
+        flagdata(infile, **self.flag_params)
+
 	print self.gaintable
         print ('\nCalibrating Data...\n')
-        self._apply_cal(infile, self.gaintable)
-        imgnameFinal = infile + 'Final.combined.img'
+	
+	if len(self.gaintable) > 0:
+        	applycal(infile, gaintable=self.gaintable)
+        
+	imgnameFinal = infile + 'Final.combined.img'
         imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
-
-        print ('\nCleaning...\n')
-        clean(infile, imgnameFinal, **kwargs)
+	
+	print self.final_clean_params
+	print ('\nCleaning...\n')
+        clean(infile, imgnameFinal, **self.final_clean_params)
 
         exportfits(imagename=(imgnameFinal+'.image'),fitsimage=(imgnameFinal+'.fits'))

@@ -1,0 +1,110 @@
+{
+  "data_path" : {
+    "run_folder": "/data6/HERA/data/2458042/HERA_imaging/run_14",
+    "image_folder": "imgs"
+  },
+
+  "new_calibration": "False",
+
+  "new_cal_params": {
+    "file_to_calibrate": "/data6/HERA/data/2458042/KM_uvR_files/zen.2458042.12552.xx.HH.uvR.uvfits.ms",
+    "model_name": "GC.cl",
+    "cal_sources" : {
+      "galactic_center": {
+        "dir": "J2000 17h45m40.0409s −29d0m28.118s",
+        "shape": "point",
+        "fluxunit": "Jy",
+        "flux": 1
+      }
+    },
+    "kcal" : {
+      "solint": "inf",
+      "refant": "11",
+      "minsnr":1,
+      "spw": "0:100~130, 0:400~600"
+    },
+
+    "gcal" : {
+      "solint": "inf",
+      "refant": "11",
+      "minsnr": 2,
+      "calmode": "ap"
+    },
+
+    "clean_1" : {
+      "niter":500,
+      "weighting":"briggs",
+      "robust":-0.5,
+      "imsize":[512,512],
+      "cell":["500arcsec"],
+      "mode":"mfs",
+      "nterms":1,
+      "spw":"0:150~900"
+    },
+
+    "clean_2" : {
+      "niter":500,
+      "weighting":"briggs",
+      "robust":-0.5,
+      "imsize":[512,512],
+      "cell":["500arcsec"],
+      "mode":"mfs",
+      "nterms":1,
+      "spw":"0:150~900"
+    },
+
+    "clean_final" : {
+      "niter": 6000,
+      "weighting": "briggs",
+      "robust" :   -0.5,
+      "imsize" :   [512,512],
+      "cell" :   ["250arcsec"],
+      "mode" :   "mfs",
+      "nterms" :   1,
+      "spw" : "0:100~800",
+      "phasecenter" : ""
+    },
+
+    "band_pass_1" : {
+      "spw":"",
+      "minsnr":1,
+      "solnorm":"False",
+      "bandtype":"B"
+    },
+
+    "band_pass_2" : {
+      "spw":"",
+      "minsnr":1,
+      "solnorm":"False",
+      "bandtype":"B"
+    }
+  },
+
+  "_cal_file_comments" : "Define the path to these files if you do not want to create a new calibration",
+  "calibration_files" : ["/data6/HERA/data/2458042/HERA_imaging/run_13/zen.2458042.50580.xx.HH.uvR.uvfits.msG.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_13/zen.2458042.50580.xx.HH.uvR.uvfits.msK.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_13/zen.2458042.50580.xx.HH.uvR.uvfits.mssplit.msB.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_13/zen.2458042.50580.xx.HH.uvR.uvfits.mssplit.msc2.msB.cal"],
+
+  "_clean_mask_comments" : "clean_mask_sources are the sources that will be masked as they move into the field of view.",
+  "clean_mask_sources" : {
+    "file_name" : "mask_sources.json"
+  },
+
+  "_base_mask_comments" : "The base_mask_params are the parameters that define the mask in the center of the image.",
+  "base_mask_params": {
+    "dec": "-30d47m17s",
+    "radius": "32000arcsec"
+  },
+
+  "clean" : {
+    "niter" : 6000,
+    "weighting" : "briggs",
+    "robust" :   -0.5,
+    "imsize" :   [512,512],
+    "cell" :   ["250arcsec"],
+    "mode" :   "mfs",
+    "nterms" :   1,
+    "spw" : "0:100~800"
+  }
+}

@@ -10,9 +10,28 @@ casa -c casa_image_ms.py <run paramters>.json <measurement sets>.ms
 from casa import *
 import numpy as np
 import os
+import collections
 import json
 import argparse
 from process_ms import CASA_Imaging
+
+def create_model(infile, cal_sources, model_name):
+    for _, params in cal_sources.iteritems():
+        cl.addcomponent(**params)
+    cl.rename(model_name)
+    cl.close()
+    ft(infile, complist=model_name, usescratch=True)
+
+
+def convert_json(data):
+    if isinstance(data, basestring):
+        return data.encode('utf-8')
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert_json, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert_json, data))
+    else:
+        return data
 
 def rad_to_hms(angle):
     '''
@@ -69,17 +88,18 @@ def find_ra_dec(folder):
     return angle_ra, angle_dec
 
 
-def set_mask(ra, dec, srcs, mask_size='32000arcsec', imsize=512, cell_size=250):
+def set_mask(ra, dec, srcs, path, mask_size='32000arcsec', imsize=512, cell_size=250):
     fov = np.deg2rad((imsize * cell_size)/3600)
     mask = 'circle[[' + rad_to_hms(ra) + ', ' + dec + '], ' + mask_size + ']'
     final_srcs = {k: src for k,src in srcs.iteritems() if ra-fov/2 <= src['RA'] <= ra+fov/2} # check if sources cross into the FOV
     if len(final_srcs) > 0:
         fname = 'mask.rgn'
+	fname = os.path.join(path,fname)
         with open(fname,'w') as f:
             f.write('#CRTFv0\n')
             f.write(mask+'\n')
             for _,v in final_srcs.iteritems():
-                f.write('circle[[' + convert_angle(v['RA']) + ', ' + dd_to_dms(v['DEC']) + '], 2000arcsec]\n')
+                f.write('circle[[' + rad_to_hms(v['RA']) + ', ' + dd_to_dms(v['DEC']) + '], 2000arcsec]\n')
         mask = fname
     return mask
 
@@ -89,18 +109,19 @@ if __name__ == '__main__':
     folders = [folder for folder in args if folder.endswith('ms')]
     folders.sort()
 	
-    
     config = [arg for arg in args if arg.endswith('json')][0]
 
     with open(config) as f:
-        config_data = json.load(f)
+        config_data = convert_json(json.load(f))
 
     ci = CASA_Imaging(config_data)
-
-    print config_data['new_calibration']
-    
     if config_data['new_calibration'] == 'True':
-        ci.create_cal_files()
+        cal_params = config_data['new_cal_params']
+	infile = cal_params['file_to_calibrate']
+	model_name = os.path.join(config_data['data_path']['run_folder'],cal_params['model_name'])
+	cal_sources = cal_params['cal_sources']
+	create_model(infile,cal_sources,model_name)
+	ci.create_cal_files()
 
     sources_file = config_data['clean_mask_sources']['file_name']
     mask_dec = config_data['base_mask_params']['dec']
@@ -111,6 +132,13 @@ if __name__ == '__main__':
 
     for folder in folders:
         ra, _ = find_ra_dec(folder)
-        mask = set_mask(ra,mask_dec,sources,mask_size=mask_radius)
-        ci.final_img_clean['mask'] = mask
+        mask = set_mask(ra, mask_dec, sources, path=ci.run_folder, mask_size=mask_radius)
+
+	if mask.endswith('rgn'):
+		print mask
+		ci.final_clean_params['mask'] = mask
+	else:
+		print mask
+		ci.final_clean_params['mask'] = mask
+
 	ci.make_image(folder)
