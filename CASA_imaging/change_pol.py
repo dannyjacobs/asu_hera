@@ -8,6 +8,31 @@ casa -c change_pol.py <measurement sets>
 import sys
 import os
 
+def find_pol_files(path=None):
+    """
+
+    Finds all of the polarization ms files in a given directory
+
+    Returns
+    -------
+    array
+            An array of uvfits file names
+
+    """
+
+    if path is None:
+            path = os.getcwd()
+
+    folders = []
+
+    for folder in os,listdir(path):
+            if (folder[-12:]) == '.uvfits.ms':
+                folders.append(os.path.join(path,folder))
+
+    folders.sort()
+    return (folders)
+
+
 def get_pol(folder, path=None):
     """
 
