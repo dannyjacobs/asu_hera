@@ -11,47 +11,47 @@ import numpy as np
 class CASA_Imaging:
     def __init__(self,config_data):
 	self.gaintable = []
-        if config_data['new_calibration'] == 'True':
-            cal_params = config_data['new_cal_params']
-            self.infile = cal_params['file_to_calibrate']
-            self.kcal = cal_params['kcal']
-            self.gcal = cal_params['gcal']
-            self.model_name = cal_params['model_name']
-            self.cal_sources = cal_params['cal_sources']
-            self.clean_1_params = cal_params['clean_1']
-            self.clean_2_params = cal_params['clean_2']
-            self.clean_final_params = cal_params['clean_final']
-            self.band_pass_1 = cal_params['band_pass_1']
-            self.band_pass_2 = cal_params['band_pass_2']
-	    self.cal_flag = cal_params['flag']
-	    try:
-		if self.cal_flag['autocorr'] == "True":
-			self.cal_flag['autocorr'] = True
-		elif self.cal_flag['autocorr'] == "False":
-			self.cal_flag['autocorr'] = False
-	    except:
-		pass
-        else:
-            self.gaintable = config_data['calibration_files']
-	
-        self.run_folder = config_data['data_path']['run_folder']
-        self.img_folder = os.path.join(self.run_folder, config_data['data_path']['image_folder'])
+    if config_data['new_calibration'] == 'True':
+        cal_params = config_data['new_cal_params']
+        self.infile = cal_params['file_to_calibrate']
+        self.kcal = cal_params['kcal']
+        self.gcal = cal_params['gcal']
+        self.model_name = cal_params['model_name']
+        self.cal_sources = cal_params['cal_sources']
+        self.clean_1_params = cal_params['clean_1']
+        self.clean_2_params = cal_params['clean_2']
+        self.clean_final_params = cal_params['clean_final']
+        self.band_pass_1 = cal_params['band_pass_1']
+        self.band_pass_2 = cal_params['band_pass_2']
+        self.cal_flag = cal_params['flag']
+        try:
+            if self.cal_flag['autocorr'] == "True":
+                self.cal_flag['autocorr'] = True
+            elif self.cal_flag['autocorr'] == "False":
+                self.cal_flag['autocorr'] = False
+        except:
+            pass
+    else:
+        self.gaintable = config_data['calibration_files']
 
-        if not os.path.exists(self.run_folder):
-            os.makedirs(self.run_folder)
-        if not os.path.exists(self.img_folder):
-	    os.makedirs(self.img_folder)
-	
-        self.final_clean_params = config_data['clean']
+    self.run_folder = config_data['data_path']['run_folder']
+    self.img_folder = os.path.join(self.run_folder, config_data['data_path']['image_folder'])
+
+    if not os.path.exists(self.run_folder):
+        os.makedirs(self.run_folder)
+    if not os.path.exists(self.img_folder):
+    os.makedirs(self.img_folder)
+
+    self.final_clean_params = config_data['clean']
 	self.flag_params = config_data['flag']
 
 	try:
-            if self.flag_params['autocorr'] == "True":
-                self.flag_params['autocorr'] = True
-            elif self.flag_params['autocorr'] == "False":
-                self.flag_params['autocorr'] = False
-        except:
-            pass
+        if self.flag_params['autocorr'] == "True":
+            self.flag_params['autocorr'] = True
+        elif self.flag_params['autocorr'] == "False":
+            self.flag_params['autocorr'] = False
+    except:
+        pass
 
     def _calname(self,m,c):
         '''
@@ -81,18 +81,6 @@ class CASA_Imaging:
             input measurement set file name
         '''
         flagdata(infile, autocorr=True)
-
-    def create_model(self, infile, cal_sources=None, model_name=None):
-        if model_name is None:
-            model_name = self.model_name
-        if cal_sources is None:
-            cal_sources = self.cal_sources
-
-        for _, params in cal_sources.iteritems():
-            cl.addcomponent(**params)
-        cl.rename(model_name)
-        cl.close()
-        ft(infile, complist=model_name, usescratch=True)
 
     def _gaincal(self, infile, kcal=None, gcal=None):
         '''
@@ -211,7 +199,7 @@ class CASA_Imaging:
         img_dir = self.img_folder
         print ('\nFlagging Data...\n')
         flagdata(infile, **self.cal_flag)
-	
+
         print ('\nInitial Calibration...\n')
         kc, gc = self._gaincal(infile)
         imgname = os.path.join(run_dir,os.path.basename(infile)+ ".init.img")
@@ -245,7 +233,7 @@ class CASA_Imaging:
 
         self.gaintable = [kc,gc,bc,bc1]
 
-    def make_image(self, infile):
+    def make_image(self, infile, flag_params = None, cal_files = None, clean_params = None):
         '''
         Flags, calibrates, and cleans a measurement single measurement set
 
@@ -257,23 +245,31 @@ class CASA_Imaging:
             string or list of strings of calibration file names to use to calibrate
             measurement sets
         '''
+
+        if flag_params is None:
+            flag_params = self.flag_params
+
+        if cal_files is None:
+            cal_files = self.gaintable
+
+        if clean_params is None:
+            clean_params = self.final_clean_params
+
         print ('Running File: ' + infile)
         img_dir = self.img_folder
 
         print ('\nFlagging Data...\n')
-        flagdata(infile, **self.flag_params)
+        flagdata(infile, **flag_params)
 
-	print self.gaintable
         print ('\nCalibrating Data...\n')
-	
-	if len(self.gaintable) > 0:
-        	applycal(infile, gaintable=self.gaintable)
-        
-	imgnameFinal = infile + 'Final.combined.img'
+
+    	if len(cal_files) > 0:
+            	applycal(infile, gaintable=cal_files)
+
+    	imgnameFinal = infile + 'Final.combined.img'
         imgnameFinal = os.path.join(img_dir,os.path.basename(imgnameFinal))
-	
-	print self.final_clean_params
-	print ('\nCleaning...\n')
-        clean(infile, imgnameFinal, **self.final_clean_params)
+
+    	print ('\nCleaning...\n')
+        clean(infile, imgnameFinal, **clean_params)
 
         exportfits(imagename=(imgnameFinal+'.image'),fitsimage=(imgnameFinal+'.fits'))
