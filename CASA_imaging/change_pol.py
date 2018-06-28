@@ -79,7 +79,7 @@ def get_pol(folder, path=None):
     imgname = vis_file + '.init.img'
 
     # Clean the file to create images
-    clean(vis=folder, imagename=imgname, niter=0, weighting='briggs',robust=-0.5, imsize=[512,512], cell=['500arcsec'],mode='mfs',nterms=1,spw='0:150~900')
+    clean(vis=folder, imagename=imgname, niter=0, weighting='briggs',robust=-0.5, imsize=[512,512], cell=['250arcsec'],mode='mfs',nterms=1,spw='0:150~900')
 
     #Put the original polariazation back in the data
     if origin_pol[0] == 9:
