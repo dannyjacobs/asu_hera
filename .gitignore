@@ -1,3 +1,4 @@
 # Ignore file types
 *.pyc
 *.log
+.DS_Store

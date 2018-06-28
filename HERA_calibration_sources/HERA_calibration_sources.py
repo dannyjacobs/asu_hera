@@ -210,7 +210,7 @@ def add_fluxes(RA_range, dec_range=7., min_flux=10.):
         tot_flux                        =   np.sum(objects["Total flux"]) # Add up the total flux inside the circle - mJy
         flux.append(tot_flux)
 
-    regions                     =   pd.DataFrame({"Name of Center": names, "RA": center_RA, "Dec": center_dec, "Total flux in region": flux}, columns=["Name of Center", "RA", "Dec", "Total flux in region"]) # Create a dataframe
+    regions                     =   pd.DataFrame({"Name of Center": names, "RA": center_RA, "Dec": center_dec, "Total flux in region": flux, }, columns=["Name of Center", "RA", "Dec", "Total flux in region"]) # Create a dataframe
 
     # Print information about chosen parameters
     lo_RA_disp                          =   RA_range[0][:2] + "h" + RA_range[0][3:5] + "m" + RA_range[0][6:] + "s"
