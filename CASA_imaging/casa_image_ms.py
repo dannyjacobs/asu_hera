@@ -94,7 +94,7 @@ def set_mask(ra, dec, srcs, path, mask_size='32000arcsec', imsize=512, cell_size
     final_srcs = {k: src for k,src in srcs.iteritems() if ra-fov/2 <= src['RA'] <= ra+fov/2} # check if sources cross into the FOV
     if len(final_srcs) > 0:
         fname = 'mask.rgn'
-	fname = os.path.join(path,fname)
+	    fname = os.path.join(path,fname)
         with open(fname,'w') as f:
             f.write('#CRTFv0\n')
             f.write(mask+'\n')
@@ -108,15 +108,17 @@ if __name__ == '__main__':
     args = sys.argv[3:]
     folders = [folder for folder in args if folder.endswith('ms')]
     folders.sort()
-	
+
     config = [arg for arg in args if arg.endswith('json')][0]
 
     with open(config) as f:
         config_data = convert_json(json.load(f))
 
     ci = CASA_Imaging(config_data)
+
     if config_data['new_calibration'] == 'True':
         cal_params = config_data['new_cal_params']
+
 	infile = cal_params['file_to_calibrate']
 	model_name = os.path.join(config_data['data_path']['run_folder'],cal_params['model_name'])
 	cal_sources = cal_params['cal_sources']
@@ -126,7 +128,9 @@ if __name__ == '__main__':
     sources_file = config_data['clean_mask_sources']['file_name']
     mask_dec = config_data['base_mask_params']['dec']
     mask_radius = config_data['base_mask_params']['radius']
-    
+
+
+
     with open(sources_file) as f:
         sources = json.load(f)
 
@@ -134,11 +138,11 @@ if __name__ == '__main__':
         ra, _ = find_ra_dec(folder)
         mask = set_mask(ra, mask_dec, sources, path=ci.run_folder, mask_size=mask_radius)
 
-	if mask.endswith('rgn'):
-		print mask
-		ci.final_clean_params['mask'] = mask
-	else:
-		print mask
-		ci.final_clean_params['mask'] = mask
+    	if mask.endswith('rgn'):
+    		print mask
+    		ci.final_clean_params['mask'] = mask
+    	else:
+    		print mask
+    		ci.final_clean_params['mask'] = mask
 
-	ci.make_image(folder)
+    	ci.make_image(folder)

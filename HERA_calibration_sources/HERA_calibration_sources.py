@@ -2,7 +2,6 @@
 import numpy as np
 import pandas as pd
 import re
-import matplotlib.pyplot as plt
 import healpy as hp
 from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
@@ -22,15 +21,13 @@ try:
 except NameError:
     pass
 
-def beam_model(target_long=45, plot=False):
+def beam_model(target_long=45):
     """Quantify a beam model as a function of declination at 150 MHz.
 
     Parameters
     ----------
     target_long : float, optional
         Azimuthal angle (in degrees) at which to find power as a function of zenith angle (default: 45 degrees).
-    plot : bool, optional
-        Whether to plot the beam function (default: False).
 
     Returns
     -------
@@ -57,19 +54,6 @@ def beam_model(target_long=45, plot=False):
     params, pcovs           =   curve_fit(gaussian_function, colat_interp, power_interp) # Fit a Gaussian to interpolated beam
     def beam_model(x):
         return np.exp(-0.5*((x - params[1])/params[2])**2)
-
-    if plot:
-        plt.close("all")
-        colat_interp                    =   np.linspace(np.min(new_colat), np.max(new_colat), 1000)
-        power_interp                    =   interp_beam(colat_interp)
-        fig                             =   plt.figure(1, figsize=(10, 8))
-        ax                              =   fig.add_subplot(111)
-        ax.plot(new_colat, power_norm, color="b", marker=".", linestyle="None") # Model
-        ax.plot(colat_interp, power_interp, color="k", linestyle="-") # Interpolation
-        ax.set_xlabel("Colatitude [degrees]"); ax.set_ylabel("Power")
-        ax.set_yscale("log")
-        plt.title("az = " + str(target_long))
-        plt.tight_layout(); plt.show(block=False)
 
     return beam_model
 
@@ -210,7 +194,11 @@ def add_fluxes(RA_range, dec_range=7., min_flux=10.):
         tot_flux                        =   np.sum(objects["Total flux"]) # Add up the total flux inside the circle - mJy
         flux.append(tot_flux)
 
-    regions                     =   pd.DataFrame({"Name of Center": names, "RA": center_RA, "Dec": center_dec, "Total flux in region": flux}, columns=["Name of Center", "RA", "Dec", "Total flux in region"]) # Create a dataframe
+<<<<<<< HEAD
+    regions                     =   pd.DataFrame({"Name of Center": names, "RA": center_RA, "Dec": center_dec, "Total flux in region": flux, }, columns=["Name of Center", "RA", "Dec", "Total flux in region"]) # Create a dataframe
+=======
+    regions                     =   pd.DataFrame({"Name": names, "RA": center_RA, "Dec": center_dec, "Flux": flux}, columns=["Name", "RA", "Dec", "Flux"]) # Create a dataframe
+>>>>>>> 0480d27bc2f5d0d05d354ff02109a59be1163a7b
 
     # Print information about chosen parameters
     lo_RA_disp                          =   RA_range[0][:2] + "h" + RA_range[0][3:5] + "m" + RA_range[0][6:] + "s"
@@ -243,8 +231,8 @@ def find_nearest(array, value):
     return array[index]
 
 def reformat_df(df,save_json=False,json_name='sources.json'):
-    src_dict                =   { v['Name of Center']: {'DEC': v['Dec'], 'RA': v['RA'],
-                                       'Total_flux': v['Total flux in region']}
+    src_dict                =   { v["Name"]: {"Dec": v["Dec"], "RA": v["RA"],
+                                       'Total_flux': v['Flux']}
                                        for _,v in df.iterrows()}
     print src_dict
     if save_json:
