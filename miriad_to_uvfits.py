@@ -3,9 +3,9 @@
 import numpy as np
 import pyuvdata
 import sys
+from astropy.time import Time
 
-
-def find_uvR_files(polarization='xx',path=None):
+def find_uvR_files(polarization='yy',path=None):
 	"""
 
 	Finds all of the uvR files in a given directory
@@ -62,7 +62,7 @@ def miriad_to_uvfits(folder,path=None):
 
 	uv = pyuvdata.UVData()
 	uv.read_miriad(folder)
-	uv.phase_to_time(np.median(uv.time_array))
+	uv.phase_to_time(Time(np.median(uv.time_array),format='jd'))
 	uv.write_uvfits(vis_file,spoof_nonessential=True)
 
 if __name__ == '__main__':
