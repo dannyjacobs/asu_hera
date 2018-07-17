@@ -61,9 +61,9 @@ def miriad_to_uvfits(folder,path=None):
 		vis_file = folder + '.uvfits'
 
 	uv = pyuvdata.UVData()
-	uv.read_miriad(folder)
+	uv.read_miriad(folder,polarizations=['yy'])
 	uv.phase_to_time(Time(np.median(uv.time_array),format='jd'))
-	uv.write_uvfits(vis_file,spoof_nonessential=True)
+	uv.write_uvfits(vis_file,spoof_nonessential=True,run_check=False,run_check_acceptability=False)
 
 if __name__ == '__main__':
 	try:
