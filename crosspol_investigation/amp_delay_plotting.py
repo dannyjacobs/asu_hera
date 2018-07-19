@@ -438,12 +438,11 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
         color = int(color)
         #Plot the antennas with the corresponding colors
         #vmin and vmax are set manually to a range that is usually readable
-        im=plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',s=3000,c=color,norm=SymLogNorm(vmin=10,vmax=5000,linthresh=.1))
+        im=plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',s=3000,c=color,norm=SymLogNorm(vmin=1,vmax=2000,linthresh=.1))
     #Print the antetnna numbers
     for aa,ant in enumerate(ants):
-        plt.text(antpos[aa,0],antpos[aa,1],ants[aa],color='w',va='center',ha='center')
-        #Print the selected antenna in black
         if ant==antnum: plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',color='black',s=3000)
+        plt.text(antpos[aa,0],antpos[aa,1],ants[aa],color='w',va='center',ha='center')
     #Print the labels and color bar
     plt.xlabel('X-position (m)')
     plt.ylabel('Y-position (m)')
@@ -471,9 +470,9 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
         dim=plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',s=3000,c=dcolor,norm=SymLogNorm(vmin=vmin,vmax=vmax,linthresh=.1))
     #Print the antenna numbers
     for aa,ant in enumerate(ants):
-        plt.text(antpos[aa,0],antpos[aa,1],ants[aa],color='w',va='center',ha='center')
-        #Print the entered antenna in black
         if ant==antnum: plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',color='black',s=3000)
+        plt.text(antpos[aa,0],antpos[aa,1],ants[aa],color='w',va='center',ha='center')
+
     #Print the labels and colorbar
     plt.xlabel('X-position (m)')
     plt.ylabel('Y-position (m)')
@@ -534,8 +533,7 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
         color = amp_1[index1,aa]
         #If the current antenna is the entered antenna we are focusing on, print
 	#in black and center at 0,0
-        if ant==antnum:
-            plt.scatter(0,0,marker='.',color='black',s=2000)
+        if ant==antnum: plt.scatter(0,0,marker='.',color='black',s=2000)
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Now we plot the remaining antennas
@@ -572,8 +570,7 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
         color = amp_2[index2,aa]
         #If the current antenna is the entered antenna we are focusing on, print
 	#in black and center at 0,0
-        if ant==antnum:
-            plt.scatter(0,0,marker='.',color='black',s=2000)
+        if ant==antnum: plt.scatter(0,0,marker='.',color='black',s=2000)
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Now we plot the remaining antennas with the color representing the
@@ -588,8 +585,7 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
     for aa,ant in enumerate(ants):
         #If the current antenna is the focus antenna, manually print number at
 	#0,0
-        if ant==antnum: 
-            plt.text(0,0,ants[aa],color='w',va='center',ha='center')
+        if ant==antnum: plt.text(0,0,ants[aa],color='w',va='center',ha='center')
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Print the remaining antenna numbers
