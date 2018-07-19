@@ -13,14 +13,12 @@ import os
 import sys
 
 #Define constants
-c = 0.299792
-f = 2./3.
 diagonals = np.linspace(0,130)
 zero_line = np.linspace(0,0)
 cable = np.linspace(150,150) 
 
 #Create an array of antennas we want to flag
-flagged_antennas = [0,2,26,50,98,136]
+flagged_antennas = np.array([0,2,26,50,98,136])
 
 
 def check_antnum(antnum,ants):
@@ -46,20 +44,24 @@ def check_antnum(antnum,ants):
 
     '''
 
-    #Check if the number entered matches with an antenna number
-    if np.any(antnum==ants) and np.any(antnum!=flagged_antennas):
-        #If the number matched, it is printed and returned
-        print(antnum)
-        return antnum
-    elif np.any(antnum==flagged_antennas):
+    #Check if the number entered matches with a flagged antenna
+    if np.any(antnum==flagged_antennas):
 	#If the antenna entered is flagged, an error message will be printed
 	print 'The antenna entered has been flagged.'
+	#Prompt the user to enter a new number
 	new_ant = input('Which antenna would you like to look at? Enter here: ')
 	new_ant = int(new_ant)
+	#Run the check on the new entry
 	new_ant = check_antnum(new_ant,ants)
+	#Return the valid antenna number
 	return int(new_ant)
+    #Check if the number entered matches with an unflagged antenna
+    elif np.any(antnum==ants):
+        #If the number matched an unflagged antenna, it is printed and returned
+        print(antnum)
+        return antnum
     else:
-        #If the number did not match, an error message is printed
+        #If the number did not match any antenna, an error message is printed
         print 'The number entered does not correspond to a known antenna.'
         #Prompt the user to enter a new number
         new_ant = input("Which antenna would you like to look at? Enter here: ")
@@ -327,7 +329,7 @@ def make_matrix_array(amp_array,delay_array,antnum=None,index=False):
 
 
 
-def plot_matrix_array(amp_array,amp_matrix,delay_matrix,vmin,vmax,title):
+def plot_matrix_array(amp_array,amp_matrix,delay_matrix,vmin=0,vmax=1000,title=None):
     '''
     The purpose of this function is to plot the matrix arrays for both amplitude
     and delay
@@ -341,12 +343,12 @@ def plot_matrix_array(amp_array,amp_matrix,delay_matrix,vmin,vmax,title):
         The array of amplitudes which will be plotted as a matrix
     delay_matrix : ndarray
         The array of delays which will be plotted as a matrix
-    vmin : int
-        The minimum value for the delay color scale
-    vmin : int
-        The maximum value for the delay color scale
-    title : str
-        The name of the plot    
+    vmin : int, optional
+        The minimum value for the delay color scale. Default is 0.
+    vmin : int, optional
+        The maximum value for the delay color scale. Default is 1000.
+    title : str, optional
+        The name of the plot. Default is None. 
     
     '''
     
@@ -355,7 +357,7 @@ def plot_matrix_array(amp_array,amp_matrix,delay_matrix,vmin,vmax,title):
     antennas.sort()
 
     #Open a figure
-    fig = plt.figure(figsize=(11,5))
+    fig = plt.figure(figsize=(12,5))
 
     #Plot the amplitudes
     #vmin and vmax have been set manually to a range that is usually readable
@@ -418,7 +420,7 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
     antpos, ants = uv.get_ENU_antpos()
     
     #Open the figure
-    plt.figure(figsize=(10,5))
+    plt.figure(figsize=(12,5))
     
     #Create a subplot
     #The first array of antennas plotted with amplitude as color
@@ -522,7 +524,7 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
     blin_length = find_blin_length(index1,antpos,ants)
 
     #Open the figure
-    plt.figure(figsize=(10,5))
+    plt.figure(figsize=(12,5))
 
     #Plot the array of antennas in the first plot with the amplitude acting as
     #the color scale
