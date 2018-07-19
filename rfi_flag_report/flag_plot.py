@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 '''
 
 This is a script intended to automatically generate a .npz containing arrays for the flag data in a given night's observations.
@@ -34,10 +36,10 @@ def create_flag_arrays(Data_Path):
     flag_waterfall_yy=[]
     #Gather flags
     #xx
-    file_flag_xx=glob.glob(Data_Path + '/*.xx.*.flags.npz')
+    file_flag_xx=glob.glob(Data_Path + '/*.xx.*.uvO.flags.npz')
     file_flag_xx.sort()
     #yy
-    file_flag_yy=glob.glob(Data_Path + '/*.yy.*.flags.npz')
+    file_flag_yy=glob.glob(Data_Path + '/*.yy.*.uvO.flags.npz')
     file_flag_yy.sort()
     
     for i,flagfile in enumerate(file_flag_xx):
@@ -112,18 +114,19 @@ def save_plots(arr_xx1, arr_yy1, arr_xx2, arr_yy2, directory, Save_Path):
     return();
 
 def main():
-    #Data_Path='/lustre/aoc/projects/hera/H1C_IDR2'
-    #Save_Path='/lustre/aoc/projects/hera/dlewis/flagreports'
-    Data_Path='/data6/HERA/data/2458042'
-    Save_Path='/data6/HERA/HERA_imaging/rfi_flag_report/'
+    Data_Path='/lustre/aoc/projects/hera/djacobs/IDR2_flags'
+    Save_Path='/lustre/aoc/projects/hera/dlewis/flagreports_full/'
+    #Data_Path='/data6/HERA/data/2458042'
+    #Save_Path='/data6/HERA/HERA_imaging/rfi_flag_report/'
     
     #Get list of directories to run on within Data Path
-    directoryList=glob.glob('/data6/HERA/data/2*')
+    directoryList=glob.glob(Data_Path +'/2*')
     directoryList.sort()
     
-    for filedir in directoryList:
+    for filedir in directoryList[-30:]:
         directory=os.path.split(filedir)[1]
-        chan_mean_xx, chan_mean_yy, time_mean_xx,time_mean_yy=create_flag_arrays(filedir)
+        print('Accessing ' + directory)
+	chan_mean_xx, chan_mean_yy, time_mean_xx,time_mean_yy=create_flag_arrays(filedir)
         #sum_chan_mean_xx, sum_chan_mean_yy, sum_time_mean_xx, sum_time_mean_yy, sum_flag_times_xx, sum_flag_times_yy=create_flag_sum_arrays(filedir)
         save_plots(chan_mean_xx, chan_mean_yy, time_mean_xx, time_mean_yy, directory, Save_Path)
 
