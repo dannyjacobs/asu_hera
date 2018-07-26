@@ -150,9 +150,9 @@ def make_max_arrays(uv, keep_flags=False):
     delays = []
     
     #Loop through each antenna pair
-    for i,ant1 in enumerate(uv.ant_1_array):
+    for i,ant1 in enumerate(uv.ant_2_array):
         #Get the second antenna number using the index number
-        ant2 = uv.ant_2_array[i]
+        ant2 = uv.ant_1_array[i]
         
         #Flag out dead antennas
         #If keep_flags is set to True, a zero entry will be added to the arrays
@@ -174,14 +174,14 @@ def make_max_arrays(uv, keep_flags=False):
         # Check if the antenna numbers are equal
         #If they are, the function will continue
         #If keep_flags is set to True, a zero entry will be added to the arrays
-        '''
+        #'''
         if ant1==ant2 and keep_flags:
             max_amp.append([ant1,ant2,0])
             delays.append([ant1,ant2,0])
             continue
         elif ant1==ant2:
             continue
-        '''
+        #'''
         
         # Create an array to hold the data for the given antenna pair
         spectrum = uv.data_array[i,0,:,0]
@@ -262,8 +262,8 @@ def make_matrix_array(amp_array, delay_array, antnum=None, index=False):
     nants_peak = len(antennas)
     
     #Create arrays to hold the formatted matrices
-    amp_matrix = np.zeros((nants_peak+1,nants_peak+1))
-    delay_matrix = np.zeros((nants_peak+1,nants_peak+1))
+    amp_matrix = np.zeros((nants_peak,nants_peak))
+    delay_matrix = np.zeros((nants_peak,nants_peak))
     
     #Fill the amplitude matrix array by stepping through the array
     for ant1,ant2,peak in amp_array:
@@ -656,9 +656,9 @@ def make_blin_depd_arrays(uv, keep_flags=False):
     blin_start = 471
     blin_end = 554
     
-    for i,ant1 in enumerate(uv.ant_1_array):
+    for i,ant1 in enumerate(uv.ant_2_array):
         #Get the second antenna number using the index number
-        ant2 = uv.ant_2_array[i]
+        ant2 = uv.ant_1_array[i]
         
         #Flag out dead antennas
         #If keep_flags is set to True, a zero entry will be added to the arrays
@@ -680,14 +680,14 @@ def make_blin_depd_arrays(uv, keep_flags=False):
         # Check if the antenna numbers are equal
         #If they are, the function will continue
         #If keep_flags is set to True, a zero entry will be added to the arrays
-        '''
+        #'''
         if ant1==ant2 and keep_flags:
             blin_amp.append([ant1,ant2,0])
             delays.append([ant1,ant2,0])
             continue
         elif ant1==ant2:
             continue
-        '''
+        #'''
         
         # Create an array to hold the night's data
         spectrum = uv.data_array[i,0,:,0]
@@ -752,9 +752,9 @@ def make_blin_ind_arrays(uv, keep_flags=False):
     blin_start = 471
     blin_end = 554
     
-    for i,ant1 in enumerate(uv.ant_1_array):
+    for i,ant1 in enumerate(uv.ant_2_array):
         #Get the second antenna number using the index number
-        ant2 = uv.ant_2_array[i]
+        ant2 = uv.ant_1_array[i]
         
         #Flag out dead antennas
         #If keep_flags is set to True, a zero entry will be added to the arrays
@@ -776,14 +776,14 @@ def make_blin_ind_arrays(uv, keep_flags=False):
         # Check if the antenna numbers are equal
         #If they are, the function will continue
         #If keep_flags is set to True, a zero entry will be added to the arrays
-        '''
+        #'''
         if ant1==ant2 and keep_flags:
             ind_amp.append([ant1,ant2,0])
             delays.append([ant1,ant2,0])
             continue
         elif ant1==ant2:
             continue
-        '''
+        #'''
         
         # Create an array to hold the night's data
         spectrum = uv.data_array[i,0,:,0]
