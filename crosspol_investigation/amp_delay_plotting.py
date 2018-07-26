@@ -21,7 +21,7 @@ cable = np.linspace(150,150)
 flagged_antennas = np.array([0,2,26,50,98,136])
 
 
-def check_antnum(antnum,ants):
+def check_antnum(antnum, ants):
     '''
     This function checks to see if the entered antenna number matches with a 
     known antenna number
@@ -47,7 +47,7 @@ def check_antnum(antnum,ants):
     #Check if the number entered matches with a flagged antenna
     if np.any(antnum==flagged_antennas):
 	#If the antenna entered is flagged, an error message will be printed
-	print 'The antenna entered has been flagged.'
+	print('The antenna entered has been flagged.')
 	#Prompt the user to enter a new number
 	new_ant = input('Which antenna would you like to look at? Enter here: ')
 	new_ant = int(new_ant)
@@ -59,10 +59,10 @@ def check_antnum(antnum,ants):
     elif np.any(antnum==ants):
         #If the number matched an unflagged antenna, it is printed and returned
         print(antnum)
-        return antnum
+        return(antnum)
     else:
         #If the number did not match any antenna, an error message is printed
-        print 'The number entered does not correspond to a known antenna.'
+        print('The number entered does not correspond to a known antenna.')
         #Prompt the user to enter a new number
         new_ant = input("Which antenna would you like to look at? Enter here: ")
         new_ant = int(new_ant)
@@ -73,7 +73,7 @@ def check_antnum(antnum,ants):
 
 
 
-def find_blin_length(index,antpos,ants):
+def find_blin_length(index, antpos, ants):
     '''
     The purpose of this function is to read in the selected antenna and
     calculate the length of each baseline
@@ -116,7 +116,7 @@ def find_blin_length(index,antpos,ants):
 
 
 
-def make_max_arrays(uv,keep_flags=False):
+def make_max_arrays(uv, keep_flags=False):
     '''
     The purpose of this function is to read in all antenna pairs and produce an
     array of the maximum amplitudes of the delay transform and an array of the 
@@ -146,13 +146,13 @@ def make_max_arrays(uv,keep_flags=False):
     '''
     
     #Create the arrays to be returned
-    max_amp=[]
-    delays=[]
+    max_amp = []
+    delays = []
     
     #Loop through each antenna pair
-    for i,ant1 in enumerate(uv.ant_1_array):
+    for i,ant1 in enumerate(uv.ant_2_array):
         #Get the second antenna number using the index number
-        ant2 = uv.ant_2_array[i]
+        ant2 = uv.ant_1_array[i]
         
         #Flag out dead antennas
         #If keep_flags is set to True, a zero entry will be added to the arrays
@@ -184,13 +184,13 @@ def make_max_arrays(uv,keep_flags=False):
         #'''
         
         # Create an array to hold the data for the given antenna pair
-        spectrum=uv.data_array[i,0,:,0]
+        spectrum = uv.data_array[i,0,:,0]
         # Take a Fourier transform along the time axis
         vis_avg_delay = np.fft.fftshift(np.fft.fft(spectrum))
         #Find the frequency width of a channel in GHz
         freq_width = np.diff(uv.freq_array[0,:])[0]
         #Convert frequencies to delays and convert to ns
-        con_delays = np.fft.fftshift(np.fft.fftfreq(uv.Nfreqs,freq_width))*1e9
+        con_delays = np.fft.fftshift(np.fft.fftfreq(uv.Nfreqs, freq_width))*1e9
         # Find the maximum amplitude and put into a variable
         #This is the absolute maximum of the graph, no matter how many peaks are
 	#present
@@ -214,11 +214,11 @@ def make_max_arrays(uv,keep_flags=False):
     delays = np.array(delays)
     
     #Return the created arrays
-    return max_amp, delays;
+    return(max_amp, delays)
 
 
 
-def make_matrix_array(amp_array,delay_array,antnum=None,index=False):
+def make_matrix_array(amp_array, delay_array, antnum=None, index=False):
     '''
     The purpose of this function is to correctly fill the arrays that will be 
     used to plot the matrices. 
@@ -268,7 +268,7 @@ def make_matrix_array(amp_array,delay_array,antnum=None,index=False):
     #Fill the amplitude matrix array by stepping through the array
     for ant1,ant2,peak in amp_array:
         #Get the coordinates for the current antenna pair
-        i,j = np.argwhere(antennas==ant1),np.argwhere(antennas==ant2)
+        i,j = np.argwhere(antennas==ant1), np.argwhere(antennas==ant2)
         #Check if index was set to True
         if index:
             #If one of the current antennas is the antenna entered by the user,
@@ -282,7 +282,7 @@ def make_matrix_array(amp_array,delay_array,antnum=None,index=False):
                 amp_matrix[j,i] = peak
                 indexnum = np.argwhere(antennas==ant2)
             #If neither of the antennas match the entered antenna, a zero is 
-	    #placed into the corresponding array element
+	    #placed into the corresponiding array element
             else:
                 amp_matrix[i,j] = 0
         #If index was not set to true, we check the coordinates and format so 
@@ -296,7 +296,7 @@ def make_matrix_array(amp_array,delay_array,antnum=None,index=False):
     #Now we fill the delay matrix array
     for ant1,ant2,delay in delay_array:
         #Get the coordinate
-        i,j = np.argwhere(antennas==ant1),np.argwhere(antennas==ant2)
+        i,j = np.argwhere(antennas==ant1), np.argwhere(antennas==ant2)
         #Check if index was set to True
         if index:
             #If one of the current antennas is the antenna entered by the user,
@@ -322,14 +322,14 @@ def make_matrix_array(amp_array,delay_array,antnum=None,index=False):
     
     #If index was set to True, return the two arrays and the two index values
     if index:
-        return amp_matrix, delay_matrix, indexnum, dindexnum;
+        return(amp_matrix, delay_matrix, indexnum, dindexnum)
     #If index was set to False, only return the two arrays
     else:
-        return amp_matrix, delay_matrix;
+        return(amp_matrix, delay_matrix)
 
 
 
-def plot_matrix_array(amp_array,amp_matrix,delay_matrix,vmin=0,vmax=1000,title=None):
+def plot_matrix_array(amp_array, amp_matrix, delay_matrix, vmin1=0, vmax1=1000, vmin2=0, vmax2=1000, title=None):
     '''
     The purpose of this function is to plot the matrix arrays for both amplitude
     and delay
@@ -343,10 +343,14 @@ def plot_matrix_array(amp_array,amp_matrix,delay_matrix,vmin=0,vmax=1000,title=N
         The array of amplitudes which will be plotted as a matrix
     delay_matrix : ndarray
         The array of delays which will be plotted as a matrix
-    vmin : int, optional
-        The minimum value for the delay color scale. Default is 0.
-    vmin : int, optional
-        The maximum value for the delay color scale. Default is 1000.
+    vmin1 : int, optional
+	The minimum value for the first plot's color scale. Default is 0. 
+    vmax1 : int, optional
+	The maximum value for the first plot's color scale. Default is 1000.
+    vmin2 : int, optional
+        The minimum value for the second plot's color scale. Default is 0.
+    vmin2 : int, optional
+        The maximum value for the second plot's color scale. Default is 1000.
     title : str, optional
         The name of the plot. Default is None. 
     
@@ -360,24 +364,24 @@ def plot_matrix_array(amp_array,amp_matrix,delay_matrix,vmin=0,vmax=1000,title=N
     fig = plt.figure(figsize=(12,5))
 
     #Plot the amplitudes
-    #vmin and vmax have been set manually to a range that is usually readable
+    #vmin and vmax are set by the user
     ax = fig.add_subplot(121)
-    cax = ax.matshow(amp_matrix,norm=SymLogNorm(vmin=200,vmax=10000,linthresh=.1))
-    fig.colorbar(cax,label='Amplitude',fraction=0.046, pad=0.04)
-    plt.xticks(np.arange(45), antennas, rotation='vertical', fontsize=8)
-    plt.yticks(np.arange(45), antennas, fontsize=8)
+    cax = ax.matshow(amp_matrix, norm=SymLogNorm(vmin=vmin1, vmax=vmax1, linthresh=.1))
+    fig.colorbar(cax, label='Amplitude', fraction=0.046, pad=0.04)
+    plt.xticks(np.arange(len(antennas)), antennas, rotation='vertical', fontsize=8)
+    plt.yticks(np.arange(len(antennas)), antennas, fontsize=8)
     #Print the title with the entered name
-    plt.title(title,pad=20)
+    plt.title(title, pad=20)
     #plt.grid()
 
     #Plot the delays
     #vmin and vmax are entered by the user
     ax2 = fig.add_subplot(122)
-    cax2 = ax2.matshow(np.abs(delay_matrix),norm=SymLogNorm(vmin=vmin,vmax=vmax,linthresh=.1))
-    fig.colorbar(cax2,label='Delay (ns)',fraction=0.046, pad=0.04)
-    plt.xticks(np.arange(45), antennas, rotation='vertical', fontsize=8)
-    plt.yticks(np.arange(45), antennas, fontsize=8)
-    plt.title('Delay (ns)',pad=20)
+    cax2 = ax2.matshow(np.abs(delay_matrix), norm=SymLogNorm(vmin=vmin2, vmax=vmax2, linthresh=.1))
+    fig.colorbar(cax2, label='Delay (ns)', fraction=0.046, pad=0.04)
+    plt.xticks(np.arange(len(antennas)), antennas, rotation='vertical', fontsize=8)
+    plt.yticks(np.arange(len(antennas)), antennas, fontsize=8)
+    plt.title('Delay (ns)', pad=20)
     #plt.grid()
 
     plt.tight_layout()
@@ -385,7 +389,7 @@ def plot_matrix_array(amp_array,amp_matrix,delay_matrix,vmin=0,vmax=1000,title=N
 
 
 
-def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0,vmax=1000,title1=None,title2=None):
+def plot_position_array(amp_array, delay_array, index, dindex, uv, antnum=None, vmin1=0, vmax1=1000, vmin2=0, vmax2=0, title1=None, title2=None):
     '''
     The purpose of this function is to plot the antenna array in their physical
     locations, with one plot using the amplitude as the color scale and the 
@@ -402,17 +406,21 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
     dindex : int
         The index number for the delay array
     uv : uv object
-	The uv object to be used to find the antenna and antenna positions.
+	The uv object to be used to find the antenna and antenna positions
     antnum : int, optional
 	The user entered antenna number. Default is none.
-    vmin : int, optional
-        The minimum value for the delay color scale. Default is 0
-    vmin : int, optional
-        The maximum value for the delay color scale. Default is 1000
+    vmin1 : int, optional
+        The minimum value for the first plot's color scale. Default is 0.
+    vmax1 : int, optional
+        The maximum value for the first plots' color scale. Default is 1000.
+    vmin2 : int, optional
+	The minimum value for the second plot's color scale. Default is 0. 
+    vmax2 : int, optional
+	The maximum value for the second plot's color scale. Default is 1000. 
     title1 : str, optional
-        The name of the first plot. Default is blank
+        The name of the first plot. Default is blank.
     title2 : str, optional
-        The name of the second plot. Default is blank
+        The name of the second plot. Default is blank.
     
     '''
 
@@ -427,7 +435,7 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
     plt.subplot(121)
 
     #This line of code isn't necessary, but it helps to better format the plot
-    plt.scatter(antpos[:,0],antpos[:,1],marker='.',s=3000,color='w')
+    plt.scatter(antpos[:,0], antpos[:,1], marker='.', s=3000, color='w')
 
     #Now we step through each antenna and plot it with the amplitude acting as
     #the color scale
@@ -437,12 +445,12 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
         #Convert into integer
         color = int(color)
         #Plot the antennas with the corresponding colors
-        #vmin and vmax are set manually to a range that is usually readable
-        im=plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',s=3000,c=color,norm=SymLogNorm(vmin=1,vmax=2000,linthresh=.1))
+        #vmin and vmax are set by the user
+        im = plt.scatter(antpos[aa,0], antpos[aa,1], marker='.', s=3000, c=color, norm=SymLogNorm(vmin=vmin1, vmax=vmax1, linthresh=.1))
     #Print the antetnna numbers
     for aa,ant in enumerate(ants):
-        if ant==antnum: plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',color='black',s=3000)
-        plt.text(antpos[aa,0],antpos[aa,1],ants[aa],color='w',va='center',ha='center')
+        plt.text(antpos[aa,0], antpos[aa,1], ants[aa], color='w', va='center', ha='center')
+	if ant==antnum: plt.scatter(antpos[aa,0], antpos[aa,1], marker='.', color='black', s=3000)
     #Print the labels and color bar
     plt.xlabel('X-position (m)')
     plt.ylabel('Y-position (m)')
@@ -455,7 +463,7 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
 
     #Again, this line isn't strictly necessary, but it helps to better format 
     #the graph
-    plt.scatter(antpos[:,0],antpos[:,1],marker='.',color='w',s=3000)
+    plt.scatter(antpos[:,0], antpos[:,1], marker='.', color='w', s=3000)
 
     #Now we step through each antenna and plot it with delay as color
     for aa in range(52):
@@ -467,12 +475,11 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
         dcolor = np.abs(dcolor)
         #Plot the antennas with the corresponding colors
         #vmin and vmax are set by the user
-        dim=plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',s=3000,c=dcolor,norm=SymLogNorm(vmin=vmin,vmax=vmax,linthresh=.1))
+        dim=plt.scatter(antpos[aa,0], antpos[aa,1], marker='.', s=3000, c=dcolor, norm=SymLogNorm(vmin=vmin2, vmax=vmax2, linthresh=.1))
     #Print the antenna numbers
     for aa,ant in enumerate(ants):
-        if ant==antnum: plt.scatter(antpos[aa,0],antpos[aa,1],marker='.',color='black',s=3000)
-        plt.text(antpos[aa,0],antpos[aa,1],ants[aa],color='w',va='center',ha='center')
-
+        plt.text(antpos[aa,0], antpos[aa,1], ants[aa], color='w', va='center', ha='center')
+	if ant==antnum: plt.scatter(antpos[aa,0], antpos[aa,1], marker='.', color='black', s=3000)
     #Print the labels and colorbar
     plt.xlabel('X-position (m)')
     plt.ylabel('Y-position (m)')
@@ -485,7 +492,7 @@ def plot_position_array(amp_array,delay_array,index,dindex,uv,antnum=None,vmin=0
 
 
 
-def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,antnum=None,title1=None,title2=None):
+def plot_delay_position(amp_1, delay_dis_1, amp_2, delay_dis_2, index1, index2, uv, vmin1=0, vmax1=1000, vmin2=0, vmax2=1000, antnum=None, title1=None, title2=None):
     '''
     The purpose of this function is to plot the antenna array based on the 
     distance given by the delay time
@@ -502,17 +509,25 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
         The array of delays in meters which correspond to the second amplitude 
         array
     uv : uv object
-	The uv object used to find the antenna positions and antenna numbers.
+	The uv object used to find the antenna positions and antenna numbers
     index1 : int
         The index for the first plot
     index2 : int
         The index for the second plot
+    vmin1 : int, optional
+	The minimum value for the first plot's color scale. Default is 0.
+    vmax1 : int, optional
+	The maximum value for the first plot's color scale. Default is 1000. 
+    vmin2 : int, optional
+	The minimal value for the second plot's color scale. Default is 0. 
+    vmax2 : int, optional
+	The maximum value for the second plot's color scale. Default is 1000. 
     antnum : int, optional
 	The entered antenna number. Default is None. 
     title1 : str, optional
-        The name of the first plot. Default is blank
+        The name of the first plot. Default is blank.
     title2 : str, optional
-        The name of the second plot. Default is blank
+        The name of the second plot. Default is blank.
     
     '''
     
@@ -520,7 +535,7 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
     antpos, ants = uv.get_ENU_antpos()
 
     #Call the function to find the distance between antennas
-    blin_length = find_blin_length(index1,antpos,ants)
+    blin_length = find_blin_length(index1, antpos, ants)
 
     #Open the figure
     plt.figure(figsize=(12,5))
@@ -533,7 +548,7 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
         color = amp_1[index1,aa]
         #If the current antenna is the entered antenna we are focusing on, print
 	#in black and center at 0,0
-        if ant==antnum: plt.scatter(0,0,marker='.',color='black',s=2000)
+        if ant==antnum: plt.scatter(0, 0, marker='.', color='black', s=2000)
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Now we plot the remaining antennas
@@ -541,22 +556,22 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
 	#antenna from the focus antenna
         #The y coordinate corresponds to the delay distance found
         #vmin and vmax are set manually to a range that is usually readable
-        else: im=plt.scatter(blin_length[aa,0],delay_dis_1[index1,aa],marker='.',s=2000,c=color,norm=SymLogNorm(vmin=10,vmax=5000,linthresh=.1))
+        else: im=plt.scatter(blin_length[aa,0], delay_dis_1[index1,aa], marker='.', s=2000, c=color, norm=SymLogNorm(vmin=vmin1, vmax=vmax1, linthresh=.1))
     
     #Print the antetnna numbers
     for aa,ant in enumerate(ants):
         #If the current antenna is the focus antenna, manually print number at 
 	#0,0
         if ant==antnum: 
-            plt.text(0,0,ants[aa],color='w',va='center',ha='center')
+            plt.text(0, 0, ants[aa], color='w', va='center', ha='center')
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Print the remaining antenna numbers
-        else: plt.text(blin_length[aa,0],delay_dis_1[index1,aa],ants[aa],color='w',va='center',ha='center')
+        else: plt.text(blin_length[aa,0], delay_dis_1[index1,aa], ants[aa], color='w', va='center', ha='center')
     #Plot lines on the diagonals and at zero
-    plt.plot(diagonals,-diagonals)
-    plt.plot(diagonals,diagonals)
-    plt.plot(diagonals,zero_line)
+    plt.plot(diagonals, -diagonals)
+    plt.plot(diagonals, diagonals)
+    plt.plot(diagonals, zero_line)
     #Print labels and color bar
     plt.xlabel('Physical Distance (m)')
     plt.ylabel('Delay distance (m)')
@@ -570,7 +585,7 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
         color = amp_2[index2,aa]
         #If the current antenna is the entered antenna we are focusing on, print
 	#in black and center at 0,0
-        if ant==antnum: plt.scatter(0,0,marker='.',color='black',s=2000)
+        if ant==antnum: plt.scatter(0, 0, marker='.', color='black', s=2000)
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Now we plot the remaining antennas with the color representing the
@@ -579,21 +594,23 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
 	#antenna from the focus antenna
         #The y coordinate corresponds to the delay distance found
         #vmin and vmax are set manually to a rangle that is usually readable
-        else: indim=plt.scatter(blin_length[aa,0],delay_dis_2[index2,aa],marker='.',s=2000,c=color,norm=SymLogNorm(vmin=10,vmax=5000,linthresh=.1))
+        else: indim=plt.scatter(blin_length[aa,0], delay_dis_2[index2,aa], marker='.', s=2000, c=color, norm=SymLogNorm(vmin=vmin2, vmax=vmax2, linthresh=.1))
    
     #Print the antetnna numbers
     for aa,ant in enumerate(ants):
         #If the current antenna is the focus antenna, manually print number at
 	#0,0
-        if ant==antnum: plt.text(0,0,ants[aa],color='w',va='center',ha='center')
+        if ant==antnum: plt.text(0, 0, ants[aa], color='w', va='center', ha='center')
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Print the remaining antenna numbers
-        else: plt.text(blin_length[aa,0],delay_dis_2[index2,aa],ants[aa],color='w',va='center',ha='center')
+        else: plt.text(blin_length[aa,0], delay_dis_2[index2,aa], ants[aa], color='w', va='center', ha='center')
     #Plot lines on the diagonal and at zero
-    plt.plot(diagonals,-diagonals)
-    plt.plot(diagonals,diagonals)
-    plt.plot(diagonals,zero_line)
+    plt.plot(diagonals, -diagonals)
+    plt.plot(diagonals, diagonals)
+    plt.plot(diagonals, zero_line)
+    plt.plot(diagonals, cable)
+    plt.plot(diagonals, -cable)
     #Print labels
     plt.xlabel('Physical Distance (m)')
     plt.ylabel('Delay distance (m)')
@@ -605,7 +622,7 @@ def plot_delay_position(amp_1,delay_dis_1,amp_2,delay_dis_2,index1,index2,uv,ant
 
 
 
-def make_blin_depd_arrays(uv,keep_flags=False):
+def make_blin_depd_arrays(uv, keep_flags=False):
     '''
     The purpose of this function is to read in all antenna pairs and produce an
     array of the maximum amplitudes and an array of the corresponding delay. 
@@ -631,17 +648,17 @@ def make_blin_depd_arrays(uv,keep_flags=False):
     '''
     
     #Create the arrays to be returned
-    blin_amp=[]
-    delays=[]
+    blin_amp = []
+    delays = []
     
     #Define constants for the beginning element that is within baseline 
     #depenedence and the end element
     blin_start = 471
     blin_end = 554
     
-    for i,ant1 in enumerate(uv.ant_1_array):
+    for i,ant1 in enumerate(uv.ant_2_array):
         #Get the second antenna number using the index number
-        ant2 = uv.ant_2_array[i]
+        ant2 = uv.ant_1_array[i]
         
         #Flag out dead antennas
         #If keep_flags is set to True, a zero entry will be added to the arrays
@@ -673,13 +690,13 @@ def make_blin_depd_arrays(uv,keep_flags=False):
         #'''
         
         # Create an array to hold the night's data
-        spectrum=uv.data_array[i,0,:,0]
+        spectrum = uv.data_array[i,0,:,0]
         # Fourier transform along the time axis
         vis_avg_delay = np.fft.fftshift(np.fft.fft(spectrum))
         #Find the frequency width of a channel in GHz
         freq_width = np.diff(uv.freq_array[0,:])[0]
         #Convert frequencies to delays and convert to ns
-        con_delays = np.fft.fftshift(np.fft.fftfreq(uv.Nfreqs,freq_width))*1e9
+        con_delays = np.fft.fftshift(np.fft.fftfreq(uv.Nfreqs, freq_width))*1e9
         # Find the maximum amplitude and put into a variable
         blin_peak = np.max(np.abs(vis_avg_delay[blin_start:blin_end]))
 	#If the peak is zero, meaning there is no peak, the delay is set to zero
@@ -699,11 +716,11 @@ def make_blin_depd_arrays(uv,keep_flags=False):
     delays = np.array(delays)
     
     #Return the created arrays
-    return blin_amp, delays;
+    return(blin_amp, delays)
 
 
 
-def make_blin_ind_arrays(uv,keep_flags=False):
+def make_blin_ind_arrays(uv, keep_flags=False):
     '''
     The purpose of this function is to read in all antenna pairs and produce an
     array of the maximum amplitudes and an array of the corresponding delays. 
@@ -727,17 +744,17 @@ def make_blin_ind_arrays(uv,keep_flags=False):
     '''
     
     #Create the arrays to be returned
-    ind_amp=[]
-    delays=[]
+    ind_amp = []
+    delays = []
     
     #Define constants for the beginning element that is within baseline 
     #depenedence and the end element
     blin_start = 471
     blin_end = 554
     
-    for i,ant1 in enumerate(uv.ant_1_array):
+    for i,ant1 in enumerate(uv.ant_2_array):
         #Get the second antenna number using the index number
-        ant2 = uv.ant_2_array[i]
+        ant2 = uv.ant_1_array[i]
         
         #Flag out dead antennas
         #If keep_flags is set to True, a zero entry will be added to the arrays
@@ -769,7 +786,7 @@ def make_blin_ind_arrays(uv,keep_flags=False):
         #'''
         
         # Create an array to hold the night's data
-        spectrum=uv.data_array[i,0,:,0]
+        spectrum = uv.data_array[i,0,:,0]
         # Fourier transform along the time axis
         vis_avg_delay = np.fft.fftshift(np.fft.fft(spectrum))
         #Find the frequency width of a channel in GHz
@@ -801,6 +818,6 @@ def make_blin_ind_arrays(uv,keep_flags=False):
     delays = np.array(delays)
     
     #Return the created arrays
-    return ind_amp, delays;
+    return(ind_amp, delays)
 
 

@@ -17,16 +17,17 @@ import glob
 uvaccum = UVData()
 
 #Create a list of all the xy files
-files_xy=glob.glob('/data6/HERA/data/IDR2.1/uvOCRSL_crosspol_time_split/xy_time_split_data/*.uvfits')
-files_xy.sort()
+globbed_files = glob.glob('/data6/HERA/data/IDR2.1/uvOCRSL_crosspol_time_split/xy_time_split_data/*.uvfits')
+globed_files.sort()
 
 #Read in the first file
-uvaccum.read_uvfits(files_xy[0])
+uvaccum.read_uvfits(globbed_files[0])
 
 #Create an array of zeros
 zeros = np.zeros([uvaccum.Nbls,uvaccum.Nspws,uvaccum.Nfreqs,uvaccum.Npols])
 
 #Replace the data array and the nsample array with zeros
+#Careful to use correct array type
 uvaccum.data_array = zeros.astype('complex')
 uvaccum.nsample_array = np.zeros([uvaccum.Nbls,uvaccum.Nspws,uvaccum.Nfreqs,uvaccum.Npols])
 uvaccum.flag_array = zeros.astype('bool')
@@ -41,26 +42,26 @@ uvaccum.lst_array = uvaccum.lst_array[:uvaccum.Nbls]
 uvaccum.nsample_array = uvaccum.nsample_array[:uvaccum.Nbls]
 uvaccum.time_array = uvaccum.time_array[:uvaccum.Nbls]
 uvaccum.uvw_array = uvaccum.uvw_array[:uvaccum.Nbls]
-#uvaccum.flag_array = uvaccum.flag_array[:uvaccum.Nbls] 
 
 print uvaccum.data_array.shape
 print uvaccum.nsample_array.shape
 print uvaccum.flag_array.shape
 
 #Run a check that arrays have correct length
-uvaccum.check(check_extra=True)
+uvaccum.check(check_extra = True)
 
-#ntimes = 0
-nitems = 0
+#Initialize variable to track the number times
+#This will be used to take the average at the end
+ntimes = 0
 
 #Start iterating over all of the files
-for my_file in files_xy:
+for my_file in globbed_files:
    
     #Create a uv object to read in the given files
     uvin = UVData()
-    uvin.read_uvfits(my_file)
+    uvin.read_uvfits(my_file, run_check=False, run_check_acceptability=False)
 
-    print('Accessing'+my_file)
+    print('Accessing' + my_file)
     
     #Unphase the data
     uvin.unphase_to_drift()
@@ -70,40 +71,37 @@ for my_file in files_xy:
     uvin.nsample_array.shape = (uvin.Ntimes,uvin.Nbls,uvin.Nspws,uvin.Nfreqs,uvin.Npols)
     uvin.flag_array.shape = (uvin.Ntimes,uvin.Nbls,uvin.Nspws,uvin.Nfreqs,uvin.Npols)
 
-
+    #Check if the file is completely flagged
+    #If it is, move onto next file
     if np.all(uvin.flag_array):
-        print 'Completely flagged'
+        print('Completely flagged')
         continue
 
-    flags = np.logical_not(uvin.flag_array)
-    print np.mean(flags)
-
-    #ntimes += np.sum(uvin.Ntimes)
-    nitems += np.sum(flags,axis=0)
+    #Keep track of the number of times as a way of tracking the data objects
+    #being counted in each element
+    ntimes += np.sum(uvin.Ntimes)
     
-    print np.mean(nitems)
+    #Create a masked array for our data array, with the flags acting as the mask
+    data_array = np.ma.array(uvin.data_array,mask = uvin.flag_array)
 
-    #Add in the data to the accumulated object
-    uvaccum.data_array += np.sum(uvin.data_array*flags, axis=0)
-    uvaccum.nsample_array += np.sum(uvin.nsample_array, axis=0)
-    uvaccum.flag_array += np.sum(np.logical_not(uvin.flag_array), axis=0,dtype='bool')
-#    print uvaccum.data_array
+    #Sum the data array over the time axis and add into the accum data array
+    uvaccum.data_array += np.ma.sum(data_array, axis = 0)
 
-#print uvaccum.data_array
-#print uvaccum.nsample_array
-#print uvaccum.flag_array
-uvaccum.flag_array = np.logical_not(uvaccum.flag_array)
+    #Sum the nsamples array over the time axis and add into the accum object
+    uvaccum.nsample_array += np.sum(uvin.nsample_array, axis = 0)
+
+#Fill the accumulated flag array
+#If 90% or more of the files contained data, keep unflagged
+#If less than 90% of the files contained data, flag the element
+uvaccum.flag_array = np.where(uvaccum.nsample_array/ntimes> = .9, False, True)
 print uvaccum.flag_array
-#print nitems
-#Average the data
-#time_avg = uvaccum.data_array / ntimes
-time_avg = np.true_divide(uvaccum.data_array,nitems,where=nitems!=0)
-#print time_avg
+#Average the data using the nsamples array
+time_avg = np.true_divide(uvaccum.data_array,uvaccum.nsample_array, where = uvaccum.nsample_array!=0)
 
 #Put the average into the data array
 uvaccum.data_array = time_avg
 
 #Write out the file
 print('Writing out file')
-uvaccum.write_uvfits('/data6/HERA/data/IDR2.1/uvOCRSL_crosspol_time_split/xy_time_split_data/combined_files/zen.grp1.of1.xy.LST.run_5.uvOCRSL.uvfits')
+uvaccum.write_uvfits('/data6/HERA/data/IDR2.1/uvOCRSL_crosspol_time_split/xy_time_split_data/combined_files/zen.grp1.of1.xy.LST.run_7.uvOCRSL.uvfits', run_check = False, run_check_acceptability = False)
 
