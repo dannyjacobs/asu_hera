@@ -11,7 +11,7 @@ def new_uvs(uv,time,polarization,folder):
         v.select(times=time)
         v.phase_to_time(np.median(v.time_array))
         #idx = os.path.basename(folder).find(polarization)
-        name = os.path.basename(folder)[:12] + str(time[0]).split('.')[1][:5].ljust(5,'0')  + os.path.basename(folder)[17:]
+        name = os.path.basename(folder)[:20] + str(time[0]).split('.')[1][:5].ljust(5,'0')  + os.path.basename(folder)[27:]
         vis_file = os.path.join(os.path.dirname(folder),name)+'.uvfits'
         print 'Writing: ' + vis_file
 	v.write_uvfits(vis_file,spoof_nonessential=True)
@@ -58,8 +58,7 @@ if __name__ == '__main__':
 	try:
                 folders = sys.argv[1:]
                 folders.sort()
-		#folders = folders[3:]
-		path = '/data6/HERA/data/2458140/time_split_uvOR'
+		path = '/data6/HERA/data/IDR2.1/uvOCRSDL_time_split_data'
 		for folder in folders:
                     	split_time_uv(folder,n,path=path)
         except IndexError:
