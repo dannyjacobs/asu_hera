@@ -16,6 +16,7 @@ import sys
 diagonals = np.linspace(0,130)
 zero_line = np.linspace(0,0)
 cable = np.linspace(150,150) 
+c = 2.99792e8
 
 #Create an array of antennas we want to flag
 flagged_antennas = np.array([0,2,26,50,98,136])
@@ -57,8 +58,7 @@ def check_antnum(antnum, ants):
 	return int(new_ant)
     #Check if the number entered matches with an unflagged antenna
     elif np.any(antnum==ants):
-        #If the number matched an unflagged antenna, it is printed and returned
-        print(antnum)
+        #If the number matched an unflagged antenna, it is returned
         return(antnum)
     else:
         #If the number did not match any antenna, an error message is printed
@@ -73,7 +73,7 @@ def check_antnum(antnum, ants):
 
 
 
-def find_blin_length(index, antpos, ants):
+def find_blin_length(ant_num, uv):
     '''
     The purpose of this function is to read in the selected antenna and
     calculate the length of each baseline
@@ -93,26 +93,36 @@ def find_blin_length(index, antpos, ants):
         This array holds the corresponding distance between each antenna pair
     
     '''
-    
+    ant_dict = {x: i for i,x in enumerate(uv.antenna_numbers)}
+
     #Create an array which holds the physical distance between each antenna in 
     #meters 
     #Initialize it to the desired length and fill with zeros. 
-    blin_length = np.zeros((52,1))
-    
-    #Step through each antenna pair with the entered antenna
-    for aa,ant in enumerate(ants):
-        #Find the horizontal distance between the two antennas
-        x = antpos[index,0] - antpos[aa,0]
-        #Find the vertical distance between the two antennas
-        y = antpos[index,1] - antpos[aa,1]
-        #Find the hypotenus of the triangle, which is the total distance between
-        #the two antennas
-        diag = np.sqrt(x**2 + y**2)
-        #Place this value into the array
-        blin_length[aa] = diag
+    bl_length = np.zeros((len(uv.antenna_numbers),len(uv.antenna_numbers)))
+
+    i = 0
+    j = 0
+
+    for ind,coord in enumerate(uv.uvw_array):
+        #This if statement iterates the indicies for the created tau array
+        if j==52:
+            #When j hits 52, it has reached the end of the list of antennas
+            #This means that we need to move to the next line and so i is iterated
+            #But we cannot simply reset j to zero because the uvw array does not repeat baselines
+            #We set j equal to i, as the new row will start will the autocorr baseline
+            i = i + 1
+            j = i
+        #Calculate the absolute distance in meters separating the antenna pair
+        bl_length[i,j] = np.sqrt(coord[0]**2 + coord[1]**2 + coord[2]**2) 
+        #Convert tau from meters into seconds
+        bl_length[i,j] = bl_length[i,j] / c
+        bl_length[j,i] = bl_length[i,j]
+        #Iterate the j index
+        j = j + 1
+
     
     #Return the array of baselines
-    return(blin_length)
+    return(bl_length[ant_dict[ant_num]])
 
 
 
