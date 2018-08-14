@@ -115,7 +115,7 @@ def find_blin_length(ant_num, uv):
         #Calculate the absolute distance in meters separating the antenna pair
         bl_length[i,j] = np.sqrt(coord[0]**2 + coord[1]**2 + coord[2]**2) 
         #Convert tau from meters into seconds
-        bl_length[i,j] = bl_length[i,j] / c
+        #bl_length[i,j] = bl_length[i,j] / c
         bl_length[j,i] = bl_length[i,j]
         #Iterate the j index
         j = j + 1
@@ -545,7 +545,7 @@ def plot_delay_position(amp_1, delay_dis_1, amp_2, delay_dis_2, index1, index2, 
     antpos, ants = uv.get_ENU_antpos()
 
     #Call the function to find the distance between antennas
-    blin_length = find_blin_length(index1, antpos, ants)
+    blin_length = find_blin_length(antnum,uv)
 
     #Open the figure
     plt.figure(figsize=(12,5))
@@ -566,7 +566,7 @@ def plot_delay_position(amp_1, delay_dis_1, amp_2, delay_dis_2, index1, index2, 
 	#antenna from the focus antenna
         #The y coordinate corresponds to the delay distance found
         #vmin and vmax are set manually to a range that is usually readable
-        else: im=plt.scatter(blin_length[aa,0], delay_dis_1[index1,aa], marker='.', s=2000, c=color, norm=SymLogNorm(vmin=vmin1, vmax=vmax1, linthresh=.1))
+        else: im=plt.scatter(blin_length[aa], delay_dis_1[index1,aa], marker='.', s=2000, c=color, norm=SymLogNorm(vmin=vmin1, vmax=vmax1, linthresh=.1))
     
     #Print the antetnna numbers
     for aa,ant in enumerate(ants):
@@ -577,7 +577,7 @@ def plot_delay_position(amp_1, delay_dis_1, amp_2, delay_dis_2, index1, index2, 
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Print the remaining antenna numbers
-        else: plt.text(blin_length[aa,0], delay_dis_1[index1,aa], ants[aa], color='w', va='center', ha='center')
+        else: plt.text(blin_length[aa], delay_dis_1[index1,aa], ants[aa], color='w', va='center', ha='center')
     #Plot lines on the diagonals and at zero
     plt.plot(diagonals, -diagonals)
     plt.plot(diagonals, diagonals)
@@ -604,7 +604,7 @@ def plot_delay_position(amp_1, delay_dis_1, amp_2, delay_dis_2, index1, index2, 
 	#antenna from the focus antenna
         #The y coordinate corresponds to the delay distance found
         #vmin and vmax are set manually to a rangle that is usually readable
-        else: indim=plt.scatter(blin_length[aa,0], delay_dis_2[index2,aa], marker='.', s=2000, c=color, norm=SymLogNorm(vmin=vmin2, vmax=vmax2, linthresh=.1))
+        else: indim=plt.scatter(blin_length[aa], delay_dis_2[index2,aa], marker='.', s=2000, c=color, norm=SymLogNorm(vmin=vmin2, vmax=vmax2, linthresh=.1))
    
     #Print the antetnna numbers
     for aa,ant in enumerate(ants):
@@ -614,7 +614,7 @@ def plot_delay_position(amp_1, delay_dis_1, amp_2, delay_dis_2, index1, index2, 
         #Skip flagged antennas
         elif np.any(ant==flagged_antennas): continue
         #Print the remaining antenna numbers
-        else: plt.text(blin_length[aa,0], delay_dis_2[index2,aa], ants[aa], color='w', va='center', ha='center')
+        else: plt.text(blin_length[aa], delay_dis_2[index2,aa], ants[aa], color='w', va='center', ha='center')
     #Plot lines on the diagonal and at zero
     plt.plot(diagonals, -diagonals)
     plt.plot(diagonals, diagonals)
