@@ -15,8 +15,8 @@ import sys
 #Define constants
 diagonals = np.linspace(0,130)
 zero_line = np.linspace(0,0)
-cable = np.linspace(150,150) 
-c = 2.99792e8
+cable = np.linspace(300,300) 
+c = 2.99792458e8
 
 #Create an array of antennas we want to flag
 flagged_antennas = np.array([0,2,26,50,98,136])
@@ -615,10 +615,7 @@ def plot_delay_position(amp_1, delay_dis_1, amp_2, delay_dis_2, index1, index2, 
         elif np.any(ant==flagged_antennas): continue
         #Print the remaining antenna numbers
         else: plt.text(blin_length[aa], delay_dis_2[index2,aa], ants[aa], color='w', va='center', ha='center')
-    #Plot lines on the diagonal and at zero
-    plt.plot(diagonals, -diagonals)
-    plt.plot(diagonals, diagonals)
-    plt.plot(diagonals, zero_line)
+    #Plot lines at twice the cable length
     plt.plot(diagonals, cable)
     plt.plot(diagonals, -cable)
     #Print labels
