@@ -8,11 +8,12 @@ from scipy.optimize import curve_fit
 from pyuvdata import UVBeam
 from astropy.io import fits
 import json
+import pdb
 
 c                       =   299792458. # Speed of light
 wavelength              =   c/150e6 # Average wavelength of interest
 max_baseline            =   100. # Length of longest baseline
-ang_res                 =   wavelength/max_baseline * 180./np.pi # Approximate angular resolution in degrees
+ang_res                 =   wavelength/max_baseline * 180./np.pi # Angular resolution
 HERA_center             =   -30.7214 # FoV centered at declination -30.7214 degrees
 
 # Make input() compatible with Python 2 and Python 3
@@ -27,31 +28,43 @@ def beam_model(target_long=45):
     Parameters
     ----------
     target_long : float, optional
-        Azimuthal angle (in degrees) at which to find power as a function of zenith angle (default: 45 degrees).
+        Azimuthal angle (in degrees) at which to find power as a function of
+        zenith angle (default: 45 degrees).
 
     Returns
     -------
     params : array-like
-        Parameters (amplitude, mean, and standard deviation) for a Gaussian model of HERA's beam.
+        Parameters (amplitude, mean, and standard deviation) for a Gaussian
+        model of HERA's beam.
     """
 
     HERA_beam               =   UVBeam()
-    HERA_beam.read_beamfits("NF_HERA_power_beam_healpix.fits") # Read the beam model
+    HERA_beam.read_beamfits("../beam_mapping/sims/NF_HERA_power_beam_healpix.fits") # Read the beam model
     nside, hpx_inds         =   HERA_beam.nside, HERA_beam.pixel_array
-    colat, long             =   hp.pixelfunc.pix2ang(nside=nside, ipix=hpx_inds, nest=False, lonlat=False) # Convert from HEALPix coordinates to long/zen
+    colat, long             =   hp.pixelfunc.pix2ang(nside=nside, ipix=hpx_inds,
+                                    nest=False, lonlat=False) # HEALPix coordinates to az/za
     long, colat             =   np.degrees(long), np.degrees(colat)
-    power_xx                =   HERA_beam.data_array[0][0][0][50] # Power at 150 MHz - XX polarization
+    power_xx                =   HERA_beam.data_array[0][0][0][50] # Power at 150 MHz, XX polarization
 
-    closest_long            =   find_nearest(long, target_long) # In case the target angle isn't actually in the simulation
-    mask                    =   (long == closest_long) # Mask out everything but the closest angle
-    new_colat, power        =   colat[mask], power_xx[mask] # Zenith angle and power for the given azimuthal angle
-    power_norm              =   power/np.max(power) # Normalize to the peak power at center of beam
+    # In case the target angle isn't actually in the simulation
+    closest_long            =   find_nearest(long, target_long)
 
-    interp_beam             =   interp1d(new_colat, power_norm) # Interpolate the beam as a function of the zenith angle
+    # Mask out everything but the closest angle
+    mask                    =   (long == closest_long)
+
+    # Zenith angle and power for the given azimuthal angle
+    new_colat, power        =   colat[mask], power_xx[mask]
+
+    # Normalize to the peak power at center of beam
+    power_norm              =   power/np.max(power)
+
+    # Interpolate the beam as a function of the zenith angle
+    interp_beam             =   interp1d(new_colat, power_norm)
     colat_interp            =   np.linspace(0.8, 10, 1000)
     power_interp            =   interp_beam(colat_interp)
 
-    params, pcovs           =   curve_fit(gaussian_function, colat_interp, power_interp) # Fit a Gaussian to interpolated beam
+    params, pcovs           =   curve_fit(gaussian_function, colat_interp,
+                                    power_interp) # Fit a Gaussian to interpolated beam
     def beam_model(x):
         return np.exp(-0.5*((x - params[1])/params[2])**2)
 
@@ -63,20 +76,28 @@ def read_data():
     Returns
     -------
     data : DataFrame
-        The names, right ascension, declination, peak flux, and total flux of all objects in the TGSS catalog.
+        The names, right ascension, declination, peak flux, and total flux of
+        all objects in the TGSS catalog.
     """
 
-    hdul                    =   fits.open("TGSSADR1_7sigma_catalog.fits") # Load the data
+    hdul                    =   fits.open("TGSSADR1_7sigma_catalog.fits")
     name                    =   hdul[1].data["Source_name"] # Get the source names
-    RA, dec                 =   hdul[1].data["RA"].astype(np.float), hdul[1].data["dec"].astype(np.float) # Get the location in degrees
-    peak_flux, tot_flux     =   hdul[1].data["Peak_flux"].astype(np.float), hdul[1].data["Total_flux"].astype(np.float) # Get flux in mJy/beam
+
+    # Get the location in degrees
+    RA                      =   hdul[1].data["RA"].astype(np.float)
+    dec                     =   hdul[1].data["dec"].astype(np.float)
+
+    # Get flux in mJy/beam
+    peak_flux               =   hdul[1].data["Peak_flux"].astype(np.float)
+    tot_flux                =   hdul[1].data["Total_flux"].astype(np.float)
 
     # Manually add Fornax A (NGC 1316)
     name                    =   np.append(name, "Fornax A")
     RA, dec                 =   np.append(RA, 50.673825), np.append(dec, -37.208227)
     peak_flux, tot_flux     =   np.append(peak_flux, 7.5e5), np.append(tot_flux, 7.5e5)
 
-    data                    =   pd.DataFrame({"Name": name, "RA": RA, "dec": dec, "Peak flux": peak_flux, "Total flux": tot_flux})
+    data                    =   pd.DataFrame({"Name": name, "RA": RA, "dec": dec,
+                                    "Peak flux": peak_flux, "Total flux": tot_flux})
 
     return data
 
@@ -86,14 +107,17 @@ def filter_by_location(RA_range, dec_range=7.):
     Parameters
     ----------
     RA_range : tuple of strings
-        The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss), with the lower RA as the first element.
+        The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss),
+        with the lower RA as the first element.
     dec_range : float, optional
-        The range in which to search around the center of the HERA FoV, -30.7 degrees (default: 7.0).
+        The range in which to search around the center of the HERA FoV, -30.7
+        degrees (default: 7.0).
 
     Returns
     -------
     filtered_data : DataFrame
-        The names, right ascension, declination, peak flux, and total flux of the objects within the given location range.
+        The names, right ascension, declination, peak flux, and total flux of
+        the objects within the given location range.
     """
 
     data                    =   read_data()
@@ -101,8 +125,11 @@ def filter_by_location(RA_range, dec_range=7.):
     lo_RA_decimal           =   15. * (lo_RA[0] + lo_RA[1]/60. + lo_RA[2]/3600.)
     hi_RA                   =   [float(RA_range[1].split(":")[i]) for i in range(3)]
     hi_RA_decimal           =   15. * (hi_RA[0] + hi_RA[1]/60. + hi_RA[2]/3600.)
-    filtered_data           =   data[(data["RA"] >= lo_RA_decimal) & (data["RA"] <= hi_RA_decimal)] # Filter by RA
-    filtered_data           =   filtered_data[(filtered_data["dec"] >= (HERA_center - dec_range)) & (filtered_data["dec"] <= (HERA_center + dec_range))] # Filter by dec
+    filtered_data           =   data[(data["RA"] >= lo_RA_decimal) & (data["RA"]
+                                    <= hi_RA_decimal)] # Filter by RA
+    filtered_data           =   filtered_data[(filtered_data["dec"] >=
+                                    (HERA_center - dec_range)) & (filtered_data["dec"]
+                                    <= (HERA_center + dec_range))] # Filter by dec
     return filtered_data
 
 def calc_apparent_flux(RA_range, dec_range=7.):
@@ -111,22 +138,30 @@ def calc_apparent_flux(RA_range, dec_range=7.):
     Parameters
     ----------
     RA_range : tuple of strings
-        The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss), with the lower RA as the first element.
+        The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss),
+        with the lower RA as the first element.
     dec_range : float, optional
-        The range in which to search around the HERA FoV center of -30.7 degrees (default: 7.0).
+        The range in which to search around the HERA FoV center of -30.7 degrees
+        (default: 7.0).
 
     Returns
     -------
     data : DataFrame
-        The names, right ascension, declination, peak aparent flux, and total apparent flux of the objects.
+        The names, right ascension, declination, peak aparent flux, and total
+        apparent flux of the objects.
     """
 
-    data                    =   filter_by_location(RA_range=RA_range, dec_range=dec_range)
-    relative_loc            =   data["dec"] - HERA_center # Find location relative to center of HERA FoV
+    data                    =   filter_by_location(RA_range=RA_range,
+                                    dec_range=dec_range)
+    relative_loc            =   data["dec"] - HERA_center # Location relative to HERA zenith
     beam_gauss              =   beam_model()
     beam_correction         =   beam_gauss(relative_loc) # Apply beam correction
-    data["Apparent peak flux"]  =   np.multiply(beam_correction, data["Peak flux"]) # Calculate apparent peak flux
-    data["Apparent total flux"] =   np.multiply(beam_correction, data["Total flux"]) # Calculate apparent total flux
+
+    # Calculate apparent peak flux
+    data["Apparent peak flux"]  =   np.multiply(beam_correction, data["Peak flux"])
+
+    # Calculate apparent total flux
+    data["Apparent total flux"] =   np.multiply(beam_correction, data["Total flux"])
 
     return data
 
@@ -136,22 +171,28 @@ def filter_by_flux(RA_range, dec_range=7., min_flux=10.):
     Parameters
     ----------
     RA_range : tuple of strings
-        The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss), with the lower RA as the first element.
+        The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss),
+        with the lower RA as the first element.
     min_flux : float, optional
         The minimum flux for objects to have in Jy (default: 10 Jy).
     dec_range : float, optional
-        The range in which to search around the HERA FoV center of -30.7 degrees (default: 7.0).
+        The range in which to search around the HERA FoV center of -30.7 degrees
+        (default: 7.0).
 
     Returns
     -------
     filtered_data : DataFrame
-        The names, right ascension, declination, peak flux, and total flux of the objects with flux larger than the
-        minimum flux desired.
+        The names, right ascension, declination, peak flux, and total flux of
+        the objects with flux larger than the minimum flux desired.
     """
 
     min_flux_mJy            =   min_flux * 1000. # Convert to mJy
-    data                    =   calc_apparent_flux(RA_range=RA_range, dec_range=dec_range) # Find the apparent flux
-    filtered_data           =   data[data["Apparent total flux"] >= min_flux_mJy] # Find objects with large flux
+
+    # Find the apparent flux
+    data                    =   calc_apparent_flux(RA_range=RA_range,
+                                    dec_range=dec_range)
+    # Find objects with large flux
+    filtered_data           =   data[data["Apparent total flux"] >= min_flux_mJy]
 
     return filtered_data
 
@@ -161,11 +202,13 @@ def add_fluxes(RA_range, dec_range=7., min_flux=10.):
     Parameters
     ----------
     RA_range : tuple of strings
-        The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss), with the lower RA as the first element.
+        The range of right ascension to search, in the form (hh:mm:ss, hh:mm:ss),
+        with the lower RA as the first element.
     min_flux : float, optional
         The minimum flux for individual objects to have in Jy (default: 10 Jy).
     dec_range : float, optional
-        The range in which to search around the HERA FoV center of -30.7 degrees (default: 7.0).
+        The range in which to search around the HERA FoV center of -30.7 degrees
+        (default: 7.0).
 
     Returns
     -------
@@ -174,33 +217,49 @@ def add_fluxes(RA_range, dec_range=7., min_flux=10.):
     """
 
     data                        =   read_data() # The unfiltered data
-    filtered_data               =   filter_by_flux(RA_range=RA_range, dec_range=dec_range, min_flux=min_flux) # The filtered data (by location and flux)
+    beam_corr_data              =   calc_apparent_flux(RA_range=RA_range,
+                                        dec_range=dec_range) # The unfiltered, beam corrected data
+    filtered_data               =   filter_by_flux(RA_range=RA_range, dec_range=dec_range,
+                                        min_flux=min_flux) # The filtered data (by location and flux)
     radius                      =   ang_res/2. # Radius of the circles enclosing each object
     lo_RA, hi_RA                =   filtered_data["RA"] - radius, filtered_data["RA"] + radius
     lo_dec, hi_dec              =   filtered_data["dec"] - radius, filtered_data["dec"] + radius
     names                       =   [filtered_data["Name"][i] for i in filtered_data.index] # Name of center object
     center_RA                   =   [filtered_data["RA"][i] for i in filtered_data.index] # RA of center
     center_dec                  =   [filtered_data["dec"][i] for i in filtered_data.index] # dec of center
-    flux                        =   [] # Empty list to store fluxes
+    flux, app_flux              =   [], [] # Empty lists to store actual and apparent fluxes
 
     for i in filtered_data.index:
         # Find all objects in unfiltered data in a square formed around a bright object
-        objects                         =   data[(data["RA"] >= lo_RA[i]) & (data["RA"] <= hi_RA[i])] # RA
-        objects                         =   objects[(objects["dec"] >= lo_dec[i]) & (objects["dec"] <= hi_dec[i])] # dec
+        objects                         =   data[(data["RA"] >= lo_RA[i]) &
+                                                (data["RA"] <= hi_RA[i])] # RA
+        objects                         =   objects[(objects["dec"] >= lo_dec[i])
+                                                & (objects["dec"] <= hi_dec[i])] # dec
         # Find objects in a circle around a bright object
-        RA_dist, dec_dist               =   objects["RA"] - filtered_data["RA"][i], objects["dec"] - filtered_data["dec"][i]
+        RA_dist                         =   objects["RA"] - filtered_data["RA"][i]
+        dec_dist                        =   objects["dec"] - filtered_data["dec"][i]
         tot_distance                    =   np.sqrt(RA_dist**2 + dec_dist**2) # Distance of each object from the one in the center
         objects                         =   objects[tot_distance <= radius] # Only keep objects within the circle (not the square)
         tot_flux                        =   np.sum(objects["Total flux"]) # Add up the total flux inside the circle - mJy
+        tot_flux_corr                   =   np.sum(np.array([beam_corr_data['Apparent total flux'][i]
+                                                for i in objects.index])) # Total flux inside the circle (beam corrected) - mJy
         flux.append(tot_flux)
+        app_flux.append(tot_flux_corr)
 
-    regions                     =   pd.DataFrame({"Name": names, "RA": center_RA, "Dec": center_dec, "Total flux": flux}, columns=["Name", "RA", "Dec", "Total flux"]) # Create a dataframe
+    # Create a dataframe
+    regions                     =   pd.DataFrame({"Name": names, "RA": center_RA,
+                                        "Dec": center_dec, "Apparent flux": app_flux,
+                                        "Total flux": flux}, columns=["Name", "RA",
+                                        "Dec", "Apparent flux", "Total flux"])
 
     # Print information about chosen parameters
-    lo_RA_disp                          =   RA_range[0][:2] + "h" + RA_range[0][3:5] + "m" + RA_range[0][6:] + "s"
-    hi_RA_disp                          =   RA_range[1][:2] + "h" + RA_range[1][3:5] + "m" + RA_range[1][6:] + "s"
+    lo_RA_disp                          =   RA_range[0][:2] + "h" + RA_range[0][3:5] \
+                                                + "m" + RA_range[0][6:] + "s"
+    hi_RA_disp                          =   RA_range[1][:2] + "h" + RA_range[1][3:5] \
+                                                + "m" + RA_range[1][6:] + "s"
     print("\nRight ascension:\n\tLower: " + lo_RA_disp + " \n\tUpper: " + hi_RA_disp)
-    print("Declination:\n\tLower: " + str(HERA_center - dec_range) + " degrees\n\tUpper: " + str(HERA_center + dec_range) + " degrees")
+    print("Declination:\n\tLower: " + str(HERA_center - dec_range) + " degrees\n\tUpper: "
+                                                + str(HERA_center + dec_range) + " degrees")
     print("Minimum flux: " + str(min_flux) + " Jy")
     print("Number of regions found: " + str(len(regions)) + "\n")
     print(regions)
@@ -228,7 +287,8 @@ def find_nearest(array, value):
 
 def reformat_df(df,save_json=False,json_name='sources.json'):
     src_dict                =   { v["Name"]: {"Dec": v["Dec"], "RA": v["RA"],
-                                       'Total_flux': v['Flux']}
+                                       "Apparent_flux": v["Apparent flux"],
+                                        "Total_flux": v["Total flux"]}
                                        for _,v in df.iterrows()}
     print src_dict
     if save_json:
