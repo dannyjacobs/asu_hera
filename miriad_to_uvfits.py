@@ -5,10 +5,10 @@ import pyuvdata
 import sys
 from astropy.time import Time
 
-def find_uvR_files(polarization='yy',path=None):
+def find_uv_files(polarization='xx',path=None):
 	"""
 
-	Finds all of the uvR files in a given directory
+	Finds all of the uv files in a given directory
 
 	Parameters
 	----------
@@ -29,22 +29,24 @@ def find_uvR_files(polarization='yy',path=None):
 	folders = []
 
 	for folder in os,listdir(path):
-		if (folder[-9:]) == polarization + '.HH.uvR':
+		#If working with other formats of uv files, such as uvR files
+		#Change the end string in the following line to reflect that.
+		if folder.endswith(polarization + '.HH.uv'):
 			folders.append(os.path.join(path,folder))
 
 	folders.sort()
 	return (folders)
 
 
-def miriad_to_uvfits(folder,path=None):
+def miriad_to_uvfits(folder,polarization='xx',path=None):
 	"""
 
-	Converts a single uvR file to uvfits format
+	Converts a single uv file to uvfits format
 
 	Parameters
 	----------
 	folder : str
-		File path of the uvR file to be converted to uvfits format
+		File path of the uv file to be converted to uvfits format
 	path : str
 		File path where the new uvfits file will be written.
 		Default is the current working directory.
@@ -61,7 +63,7 @@ def miriad_to_uvfits(folder,path=None):
 		vis_file = folder + '.uvfits'
 
 	uv = pyuvdata.UVData()
-	uv.read_miriad(folder,polarizations=['yy'])
+	uv.read_miriad(folder,polarizations=[polarization])
 	uv.phase_to_time(Time(np.median(uv.time_array),format='jd'))
 	uv.write_uvfits(vis_file,spoof_nonessential=True,run_check=False,run_check_acceptability=False)
 
