@@ -1,17 +1,21 @@
 {
   "data_path" : {
-    "run_folder": "/data6/HERA/data/2458042/HERA_imaging/IDR2_uvORSDL",
-    "image_folder": "imgs"
+    "run_folder": "/data6/HERA/HERA_imaging/freq_splitting/run_3",
+    "image_folder": "full_imgs_spw_change"
   },
 
   "new_calibration": "False",
 
   "new_cal_params": {
-    "file_to_calibrate": "/data6/HERA/data/2458042/KM_uvR_files/zen.2458042.12552.xx.HH.uvR.uvfits.ms",
+    "flag":{
+      "autocorr": "True",
+      "mode": "tfcrop"
+},
+    "file_to_calibrate": "/data6/HERA/data/2458028/zen.2458028.16719.xx.HH.uv.uvfits.ms",
     "model_name": "GC.cl",
     "cal_sources" : {
-      "galactic_center": {
-        "dir": "J2000 17h45m40.0409s −29d0m28.118s",
+      "Galactic Center": {
+        "dir": "J2000 17h45m40.04s −29d00m28.1s",
         "shape": "point",
         "fluxunit": "Jy",
         "flux": 1
@@ -54,7 +58,7 @@
     },
 
     "clean_final" : {
-      "niter": 6000,
+      "niter": 0,
       "weighting": "briggs",
       "robust" :   -0.5,
       "imsize" :   [512,512],
@@ -68,26 +72,26 @@
     "band_pass_1" : {
       "spw":"",
       "minsnr":1,
-      "solnorm":"False",
       "bandtype":"B"
     },
 
     "band_pass_2" : {
       "spw":"",
       "minsnr":1,
-      "solnorm":"False",
       "bandtype":"B"
     }
   },
 
   "_cal_file_comments" : "Define the path to these files if you do not want to create a new calibration",
-  "calibration_files" : [],
+  "calibration_files" : ["/data6/HERA/HERA_imaging/2458042/run_3/zen.2458042.12552.xx.HH.uvR.uvfits.msG.cal",
+"/data6/HERA/HERA_imaging/2458042/run_3/zen.2458042.12552.xx.HH.uvR.uvfits.msK.cal",
+"/data6/HERA/HERA_imaging/2458042/run_3/zen.2458042.12552.xx.HH.uvR.uvfits.mssplit.msB.cal",
+"/data6/HERA/HERA_imaging/2458042/run_3/zen.2458042.12552.xx.HH.uvR.uvfits.mssplit.msc2.msB.cal"],
 
   "_clean_mask_comments" : "clean_mask_sources are the sources that will be masked as they move into the field of view.",
   "clean_mask_sources" : {
-    "file_name" : "imaging_runs/IDR2_uvORSDL/mask_sources.json"
+    "file_name" : "imaging_runs/freq_split_beam_mapping/freq_test/mask_sources.json"
   },
-
 
   "_base_mask_comments" : "The base_mask_params are the parameters that define the mask in the center of the image.",
   "base_mask_params": {
@@ -95,9 +99,10 @@
     "radius": "32000arcsec"
   },
 
-  "flag": {
-     "autocorr": "True"
-   },
+ "flag":{
+      "autocorr": "True", 
+      "mode": "tfcrop"
+},
 
   "clean" : {
     "niter" : 6000,
@@ -107,6 +112,6 @@
     "cell" :   ["250arcsec"],
     "mode" :   "mfs",
     "nterms" :   1,
-    "spw" : ""
+    "spw" : "0:1~206"
   }
 }

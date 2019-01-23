@@ -1,21 +1,16 @@
 {
   "data_path" : {
-    "run_folder": "/data6/HERA/data/2458042/HERA_imaging/IDR2_uvORSDL",
+    "run_folder": "/data6/HERA/HERA_imaging/2458042/source_code_cal",
     "image_folder": "imgs"
   },
 
-  "new_calibration": "False",
+  "new_calibration": "True",
 
   "new_cal_params": {
-    "file_to_calibrate": "/data6/HERA/data/2458042/KM_uvR_files/zen.2458042.12552.xx.HH.uvR.uvfits.ms",
+    "file_to_calibrate": "/data6/HERA/data/2458042/KM_uvR_files/zen.2458042.43869.xx.HH.uvR.uvfits.ms",
     "model_name": "GC.cl",
     "cal_sources" : {
-      "galactic_center": {
-        "dir": "J2000 17h45m40.0409s −29d0m28.118s",
-        "shape": "point",
-        "fluxunit": "Jy",
-        "flux": 1
-      }
+      "file": "imaging_runs/source_code_cal_2458042/calibration_sources.json"
     },
     "kcal" : {
       "solint": "inf",
@@ -68,26 +63,27 @@
     "band_pass_1" : {
       "spw":"",
       "minsnr":1,
-      "solnorm":"False",
       "bandtype":"B"
     },
 
     "band_pass_2" : {
       "spw":"",
       "minsnr":1,
-      "solnorm":"False",
       "bandtype":"B"
+    },
+
+    "flag": {
+      "autocorr": "True",
+      "mode": "tfcrop"   
     }
   },
 
   "_cal_file_comments" : "Define the path to these files if you do not want to create a new calibration",
-  "calibration_files" : [],
-
+  "calibration_files": [],
   "_clean_mask_comments" : "clean_mask_sources are the sources that will be masked as they move into the field of view.",
   "clean_mask_sources" : {
-    "file_name" : "imaging_runs/IDR2_uvORSDL/mask_sources.json"
+    "file_name" : "imaging_runs/2458042/run_15/mask_sources.json"
   },
-
 
   "_base_mask_comments" : "The base_mask_params are the parameters that define the mask in the center of the image.",
   "base_mask_params": {
@@ -96,8 +92,9 @@
   },
 
   "flag": {
-     "autocorr": "True"
-   },
+    "autocorr": "False",
+    "mode": "tfcrop" 
+  },
 
   "clean" : {
     "niter" : 6000,
@@ -107,6 +104,6 @@
     "cell" :   ["250arcsec"],
     "mode" :   "mfs",
     "nterms" :   1,
-    "spw" : ""
+    "spw" : "0:100~800"
   }
 }

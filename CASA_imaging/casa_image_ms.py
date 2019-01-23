@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Tweak the calibration and clean parameters in the run.json file
 for an imaging run of the sky.
@@ -94,7 +95,7 @@ def set_mask(ra, dec, srcs, path, mask_size='32000arcsec', imsize=512, cell_size
     final_srcs = {k: src for k,src in srcs.iteritems() if ra-fov/2 <= src['RA'] <= ra+fov/2} # check if sources cross into the FOV
     if len(final_srcs) > 0:
         fname = 'mask.rgn'
-	    fname = os.path.join(path,fname)
+	fname = os.path.join(path,fname)
         with open(fname,'w') as f:
             f.write('#CRTFv0\n')
             f.write(mask+'\n')
@@ -118,10 +119,12 @@ if __name__ == '__main__':
 
     if config_data['new_calibration'] == 'True':
         cal_params = config_data['new_cal_params']
-
 	infile = cal_params['file_to_calibrate']
 	model_name = os.path.join(config_data['data_path']['run_folder'],cal_params['model_name'])
 	cal_sources = cal_params['cal_sources']
+    	if type(cal_sources.values()[0]) is not dict:
+	    	with open(cal_sources.values()[0],'r') as fp:
+		    cal_sources = convert_json(json.load(fp))
 	create_model(infile,cal_sources,model_name)
 	ci.create_cal_files()
 

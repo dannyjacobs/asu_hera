@@ -1,6 +1,6 @@
 {
   "data_path" : {
-    "run_folder": "/data6/HERA/data/2458042/HERA_imaging/IDR2_uvORSDL",
+    "run_folder": "/data6/HERA/data/2458042/HERA_imaging/run_3",
     "image_folder": "imgs"
   },
 
@@ -77,17 +77,24 @@
       "minsnr":1,
       "solnorm":"False",
       "bandtype":"B"
+    },
+
+    "flag": {
+      "autocorr": "True",
+      "mode": "tfcrop"   
     }
   },
 
   "_cal_file_comments" : "Define the path to these files if you do not want to create a new calibration",
-  "calibration_files" : [],
+  "calibration_files" : ["/data6/HERA/data/2458042/HERA_imaging/run_12/zen.2458042.44615.xx.HH.uvR.uvfits.msG.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_12/zen.2458042.44615.xx.HH.uvR.uvfits.msK.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_12/zen.2458042.44615.xx.HH.uvR.uvfits.mssplit.msB.cal",
+                         "/data6/HERA/data/2458042/HERA_imaging/run_12/zen.2458042.44615.xx.HH.uvR.uvfits.mssplit.msc2.msB.cal"],
 
   "_clean_mask_comments" : "clean_mask_sources are the sources that will be masked as they move into the field of view.",
   "clean_mask_sources" : {
-    "file_name" : "imaging_runs/IDR2_uvORSDL/mask_sources.json"
+    "file_name" : "run_15/mask_sources.json"
   },
-
 
   "_base_mask_comments" : "The base_mask_params are the parameters that define the mask in the center of the image.",
   "base_mask_params": {
@@ -96,8 +103,9 @@
   },
 
   "flag": {
-     "autocorr": "True"
-   },
+    "autocorr": "False",
+    "mode": "tfcrop" 
+  },
 
   "clean" : {
     "niter" : 6000,
@@ -107,6 +115,6 @@
     "cell" :   ["250arcsec"],
     "mode" :   "mfs",
     "nterms" :   1,
-    "spw" : ""
+    "spw" : "0:100~800"
   }
 }

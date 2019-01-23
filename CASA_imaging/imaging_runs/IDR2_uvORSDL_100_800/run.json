@@ -1,6 +1,6 @@
 {
   "data_path" : {
-    "run_folder": "/data6/HERA/data/2458042/HERA_imaging/IDR2_uvORSDL",
+    "run_folder": "/data6/HERA/data/2458042/HERA_imaging/IDR2_uvORSDL_100_800",
     "image_folder": "imgs"
   },
 
@@ -107,6 +107,6 @@
     "cell" :   ["250arcsec"],
     "mode" :   "mfs",
     "nterms" :   1,
-    "spw" : ""
+    "spw" : "0:100~800"
   }
 }

@@ -11,47 +11,47 @@ import numpy as np
 class CASA_Imaging:
     def __init__(self,config_data):
 	self.gaintable = []
-    if config_data['new_calibration'] == 'True':
-        cal_params = config_data['new_cal_params']
-        self.infile = cal_params['file_to_calibrate']
-        self.kcal = cal_params['kcal']
-        self.gcal = cal_params['gcal']
-        self.model_name = cal_params['model_name']
-        self.cal_sources = cal_params['cal_sources']
-        self.clean_1_params = cal_params['clean_1']
-        self.clean_2_params = cal_params['clean_2']
-        self.clean_final_params = cal_params['clean_final']
-        self.band_pass_1 = cal_params['band_pass_1']
-        self.band_pass_2 = cal_params['band_pass_2']
-        self.cal_flag = cal_params['flag']
-        try:
-            if self.cal_flag['autocorr'] == "True":
-                self.cal_flag['autocorr'] = True
-            elif self.cal_flag['autocorr'] == "False":
-                self.cal_flag['autocorr'] = False
-        except:
-            pass
-    else:
-        self.gaintable = config_data['calibration_files']
+    	if config_data['new_calibration'] == 'True':
+        	cal_params = config_data['new_cal_params']
+        	self.infile = cal_params['file_to_calibrate']
+        	self.kcal = cal_params['kcal']
+        	self.gcal = cal_params['gcal']
+        	self.model_name = cal_params['model_name']
+        	self.cal_sources = cal_params['cal_sources']
+        	self.clean_1_params = cal_params['clean_1']
+        	self.clean_2_params = cal_params['clean_2']
+       		self.clean_final_params = cal_params['clean_final']
+        	self.band_pass_1 = cal_params['band_pass_1']
+        	self.band_pass_2 = cal_params['band_pass_2']
+        	self.cal_flag = cal_params['flag']
+        	try:
+            		if self.cal_flag['autocorr'] == "True":
+                		self.cal_flag['autocorr'] = True
+            		elif self.cal_flag['autocorr'] == "False":
+                		self.cal_flag['autocorr'] = False
+        	except:
+            		pass
+    	else:
+        	self.gaintable = config_data['calibration_files']
 
-    self.run_folder = config_data['data_path']['run_folder']
-    self.img_folder = os.path.join(self.run_folder, config_data['data_path']['image_folder'])
+    	self.run_folder = config_data['data_path']['run_folder']
+    	self.img_folder = os.path.join(self.run_folder, config_data['data_path']['image_folder'])
 
-    if not os.path.exists(self.run_folder):
-        os.makedirs(self.run_folder)
-    if not os.path.exists(self.img_folder):
-    os.makedirs(self.img_folder)
+    	if not os.path.exists(self.run_folder):
+        	os.makedirs(self.run_folder)
+    	if not os.path.exists(self.img_folder):
+    		os.makedirs(self.img_folder)
 
-    self.final_clean_params = config_data['clean']
+    	self.final_clean_params = config_data['clean']
 	self.flag_params = config_data['flag']
 
 	try:
-        if self.flag_params['autocorr'] == "True":
-            self.flag_params['autocorr'] = True
-        elif self.flag_params['autocorr'] == "False":
-            self.flag_params['autocorr'] = False
-    except:
-        pass
+        	if self.flag_params['autocorr'] == "True":
+            		self.flag_params['autocorr'] = True
+        	elif self.flag_params['autocorr'] == "False":
+            		self.flag_params['autocorr'] = False
+    	except:
+        	pass
 
     def _calname(self,m,c):
         '''
