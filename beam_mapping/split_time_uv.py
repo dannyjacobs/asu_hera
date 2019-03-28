@@ -3,19 +3,27 @@ import numpy as np
 from copy import deepcopy
 import sys
 import os
-
+from astropy.time import Time
 # This function will split a given folder's uv files into smaller time ranges based on a given arguments
 
 def new_uvs(uv,time,polarization,folder):
 	v = deepcopy(uv)
         v.select(times=time)
-        v.phase_to_time(np.median(v.time_array))
+        v.phase_to_time(Time(np.median(v.time_array), format='jd'))
         #idx = os.path.basename(folder).find(polarization)
         name = os.path.basename(folder)[:20] + str(time[0]).split('.')[1][:5].ljust(5,'0')  + os.path.basename(folder)[27:]
         vis_file = os.path.join(os.path.dirname(folder),name)+'.uvfits'
         print 'Writing: ' + vis_file
 	v.write_uvfits(vis_file,spoof_nonessential=True)
 	del v
+
+def folder_size(start_path):
+	total_size = 0
+	for path, dirs, files in os.walk(start_path):
+    		for f in files:
+        		fp = os.path.join(path, f)
+        		total_size += os.path.getsize(fp)
+	return total_size
 
 def split_time_uv(folder,n=1,path=None,polarization='xx'):
         """
@@ -58,8 +66,11 @@ if __name__ == '__main__':
 	try:
                 folders = sys.argv[1:]
                 folders.sort()
-		path = '/data6/HERA/data/IDR2.1/uvOCRSDL_time_split_data'
+		path = '/data6/HERA/data/IDR2.1/uvOCRSL_fine_time_split'
 		for folder in folders:
-                    	split_time_uv(folder,n,path=path)
+			if folder_size(folder) > 7e8:
+                    		split_time_uv(folder,n,path=path)
+			else:
+				pass
         except IndexError:
                 print('No file specified for conversion from miriad to uvfits')	
