@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+Example:
+python miriad_to_uvfits.py /path/to/data/*.ms
+"""
 
 import numpy as np
 import pyuvdata
