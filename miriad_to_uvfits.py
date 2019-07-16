@@ -7,6 +7,7 @@ python miriad_to_uvfits.py /path/to/data/*.ms
 import numpy as np
 import pyuvdata
 import sys
+import os
 from astropy.time import Time
 
 def find_uv_files(pol='xx', ends_with = 'uv', path=None):
@@ -64,22 +65,26 @@ def miriad_to_uvfits(folder, pol='xx', path=None):
 
 	if path is not None:
 		if os.path.isdir(path):
-			vis_file = os.path.join(path,folder) + '.uvfits'
+			data = os.path.basename(folder)
+			vis_file = os.path.join(path, data) + '.uvfits'
 		else:
 			raise IOError("%s not found." % path)
 
 	else:
 		vis_file = folder + '.uvfits'
 
-	uv = pyuvdata.UVData()
-	uv.read_miriad(folder,polarizations=[pol])
-	uv.phase_to_time(Time(np.median(uv.time_array),format='jd'))
-	uv.write_uvfits(vis_file,spoof_nonessential=True,run_check=False,run_check_acceptability=False)
+	try:
+                uv = pyuvdata.UVData()
+                uv.read_miriad(folder,polarizations=[pol])
+                uv.phase_to_time(Time(np.median(uv.time_array),format='jd'))
+                uv.write_uvfits(vis_file,spoof_nonessential=True,run_check=False,run_check_acceptability=False)
+        except Exception as e:
+                print ('{}: {}'.format(folder, e))
 
 if __name__ == '__main__':
 	try:
 		folders = sys.argv[1:]
 		for folder in folders:
-			miriad_to_uvfits(folder)
+			miriad_to_uvfits(folder, path='/data4/tcox/2458105')
 	except IndexError:
 		print('No file specified for conversion from miriad to uvfits')
