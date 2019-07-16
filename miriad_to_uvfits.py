@@ -78,7 +78,7 @@ def miriad_to_uvfits(folder, pol='xx', path=None):
 		uv.read_miriad(folder,polarizations=[pol])
 		uv.phase_to_time(Time(np.median(uv.time_array),format='jd'))
 		uv.write_uvfits(vis_file,spoof_nonessential=True,run_check=False,run_check_acceptability=False)
-    except Exception as e:
+	except Exception as e:
 		print ('{}: {}'.format(folder, e))
 
 if __name__ == '__main__':
