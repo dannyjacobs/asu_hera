@@ -1,3 +1,8 @@
+"""
+Example:
+casa -c uvfits_to_ms.py /path/to/data/*.uv
+"""
+
 from casa import importuvfits
 import sys
 import os
