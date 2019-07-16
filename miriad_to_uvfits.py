@@ -85,6 +85,6 @@ if __name__ == '__main__':
 	try:
 		folders = sys.argv[1:]
 		for folder in folders:
-			miriad_to_uvfits(folder, path='/data4/tcox/2458105')
+			miriad_to_uvfits(folder)
 	except IndexError:
 		print('No file specified for conversion from miriad to uvfits')
