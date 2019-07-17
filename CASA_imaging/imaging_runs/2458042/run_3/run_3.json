@@ -13,7 +13,8 @@
       "galactic_center": {
         "shape": "point",
         "fluxunit": "Jy",
-        "flux": 1
+        "flux": 1,
+        "dir": "J2000 17h45m40.0409s -29d0m28.118s"
       }
     },
     "kcal" : {
@@ -80,7 +81,7 @@
 
     "flag": {
       "autocorr": "True",
-      "mode": "tfcrop"   
+      "mode": "tfcrop"
     }
   },
 
@@ -103,7 +104,7 @@
 
   "flag": {
     "autocorr": "False",
-    "mode": "tfcrop" 
+    "mode": "tfcrop"
   },
 
   "clean" : {
