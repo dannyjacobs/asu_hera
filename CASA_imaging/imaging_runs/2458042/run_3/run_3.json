@@ -1,6 +1,6 @@
 {
   "data_path" : {
-    "run_folder": "/data6/HERA/HERA_imaging/2458042/run_3",
+    "run_folder": "/data6/HERA/HERA_imaging/2458042/run_lmb2",
     "image_folder": "imgs"
   },
 
@@ -32,7 +32,7 @@
     },
 
     "clean_1" : {
-      "niter":500,
+      "niter":100,
       "weighting":"briggs",
       "robust":-0.5,
       "imsize":[512,512],
@@ -43,7 +43,7 @@
     },
 
     "clean_2" : {
-      "niter":500,
+      "niter":100,
       "weighting":"briggs",
       "robust":-0.5,
       "imsize":[512,512],
@@ -54,7 +54,7 @@
     },
 
     "clean_final" : {
-      "niter": 6000,
+      "niter": 1000,
       "weighting": "briggs",
       "robust" :   -0.5,
       "imsize" :   [512,512],
@@ -108,7 +108,7 @@
   },
 
   "clean" : {
-    "niter" : 6000,
+    "niter" : 1000,
     "weighting" : "briggs",
     "robust" :   -0.5,
     "imsize" :   [512,512],
